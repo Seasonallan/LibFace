@@ -5,13 +5,47 @@ android {
     buildToolsVersion "30.0.1"
 
     defaultConfig {
-        applicationId "com.example.myapplication"
-        minSdkVersion 16
+        applicationId "com.huke.socialcontact"
+        minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+
+        splits {
+            abi {
+                enable true
+                reset()
+                include 'x86', 'armeabi-v7a', 'x86_64'
+                universalApk true
+            }
+        }
+        ndk {
+            abiFilters "x86", 'armeabi-v7a', 'armeabi'
+        }
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs', '../aimo/libs'
+        }
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        //解决编译时More than one file was found with OS independent path 'lib/armeabi-v7a/libopencv_java3.so'这个错误
+        pickFirst 'lib/armeabi-v7a/libn.so'
+        pickFirst 'lib/armeabi-v7a/libopencv_java3.so'
+        exclude 'lib/arm64-v8a/libopencv_java3.so'
     }
 
     buildTypes {
@@ -30,4 +64,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    //aimo人脸识别库
+    api project(path: ':aimo')
 }
