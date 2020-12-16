@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <FrameLayout
+        android:id="@+id/verify_ll_face"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/camera_bottom"
+        android:background="#BEBEBE"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/camera_cover"
+            android:layout_width="338dp"
+            android:layout_height="342dp"
+            android:layout_gravity="center"
+            android:src="@mipmap/pic_auth_human" />
+
+        <TextView
+            android:id="@+id/camera_iv_start"
+            android:layout_width="94dp"
+            android:layout_height="94dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_margin="5dp"
+            android:background="@mipmap/icon_camera_start"
+            android:gravity="center"
+            android:text="点击开始"
+            android:textColor="@android:color/black"
+            android:textSize="15sp" />
+
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/camera_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/camera_tv_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:text="状态"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingLeft="24dp"
+            android:paddingTop="20dp"
+            android:paddingRight="24dp"
+            android:paddingBottom="20dp">
+
+            <FrameLayout
+                android:id="@+id/auth_fl_example1"
+                android:layout_width="match_parent"
+                android:layout_height="113dp"
+                android:layout_marginRight="6dp"
+                android:layout_weight="1">
+
+
+                <ImageView
+                    android:id="@+id/auth_iv_example1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@mipmap/pic_auth_face"
+                    android:scaleType="centerCrop" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/auth_fl_example2"
+                android:layout_width="match_parent"
+                android:layout_height="113dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:layout_weight="1">
+
+
+                <ImageView
+                    android:id="@+id/auth_iv_example2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@mipmap/pic_auth_face"
+                    android:scaleType="centerCrop" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/auth_fl_example3"
+                android:layout_width="match_parent"
+                android:layout_height="113dp"
+                android:layout_marginLeft="6dp"
+                android:layout_weight="1">
+
+
+                <ImageView
+                    android:id="@+id/auth_iv_example3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@mipmap/pic_auth_face"
+                    android:scaleType="centerCrop" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/verify_tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:padding="27dp"
+        android:text="动作识别验证" />
+
+</RelativeLayout>

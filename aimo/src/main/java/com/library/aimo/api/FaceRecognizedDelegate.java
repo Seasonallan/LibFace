@@ -11,8 +11,10 @@ import com.library.aimo.config.SettingConfig;
 import com.library.aimo.config.SharedPreferencesUtils;
 import com.library.aimo.core.BaseCameraEngine;
 import com.library.aimo.core.Size;
+import com.library.aimo.util.BitmapUtils;
 import com.library.aimo.util.ImoLog;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,12 +23,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class FaceRecognizedDelegate implements IFaceAction {
     private String currentUserId;
-    private long startExtractTime;
+    private long startExtractTime = -1;
     private AtomicBoolean matchSuccess = new AtomicBoolean(false);
     private AtomicBoolean matchTimeout = new AtomicBoolean(false);
 
     public interface FaceExtractListener {
-        void onFaceMatch(Bitmap bitmap);
+        void onFaceMatch(Bitmap bitmap, float score);
 
         void onFaceDisappear();
 
@@ -64,22 +66,29 @@ public class FaceRecognizedDelegate implements IFaceAction {
 
             @Override
             public void onFaceMatch(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, ImoFaceFeature[] imoFaceFeatures, float score) {
-                if (null == features) {
-                    return;
-                }
-                ImoLog.e("识别分数："+ score);
 
-                float matchScore = -1;
-                if (imoFaceFeatures != null && imoFaceFeatures.length > 0){
-                    float compare = ImoFaceExtractor.compare(imoFaceFeatures[0].getFeatures(), features);
-                    ImoLog.e("与本地特征值对比分数："+ compare);
-                    matchScore = Math.max(matchScore, compare);
-                }
-                if (matchScore >= 0.9f) {//匹配到人脸，并且对比分值到90分
-                    matchSuccess.set(true);
-                    if (!matchTimeout.get()) {
-                        if (null != faceExtractListener) {
-                            faceExtractListener.onFaceMatch(IMoRecognitionManager.getInstance().bytes2bitmap(data, width, height, format, orientation, flip));
+                ImoLog.e("识别分数：" + score);
+
+                if (currentUserId == null) {
+                    if (null != faceExtractListener) {
+                        faceExtractListener.onFaceMatch(IMoRecognitionManager.getInstance().bytes2bitmap(data, width, height, format, orientation, flip), score);
+                    }
+                } else {
+                    if (null == features) {
+                        return;
+                    }
+                    float matchScore = -1;
+                    if (imoFaceFeatures != null && imoFaceFeatures.length > 0) {
+                        float compare = ImoFaceExtractor.compare(imoFaceFeatures[0].getFeatures(), features);
+                        ImoLog.e("与本地特征值对比分数：" + compare);
+                        matchScore = Math.max(matchScore, compare);
+                    }
+                    if (matchScore >= 0.9f) {//匹配到人脸，并且对比分值到90分
+                        matchSuccess.set(true);
+                        if (!matchTimeout.get()) {
+                            if (null != faceExtractListener) {
+                                faceExtractListener.onFaceMatch(IMoRecognitionManager.getInstance().bytes2bitmap(data, width, height, format, orientation, flip), score);
+                            }
                         }
                     }
                 }
@@ -97,11 +106,27 @@ public class FaceRecognizedDelegate implements IFaceAction {
         if (!IMoSDKManager.get().getInitResult()) {
             return null;
         }
+        if (startExtractTime < 0){
+            return null;
+        }
 
         //在指定时间内检测
         execFaceExtractTask(cameraEngine, nv21Data);
         return null;
     }
+
+    File cacheDir;
+
+    /**
+     * 设置视频的图片存储位置
+     *
+     * @param file
+     */
+    public void setCacheDir(File file) {
+        this.cacheDir = file;
+    }
+
+    private long lastRecordTime = -1;
 
     private void execFaceExtractTask(BaseCameraEngine cameraEngine, byte[] nv21Data) {
         // 相机预览的图片分辨率大小
@@ -122,11 +147,22 @@ public class FaceRecognizedDelegate implements IFaceAction {
             flipx = !flipx;
         }
 
+        if (currentUserId == null) {
+            //采集图片到本地，用于合成视频
+            if (System.currentTimeMillis() - lastRecordTime > 1000 / 4 && cacheDir != null) {
+                lastRecordTime = System.currentTimeMillis();
+                Bitmap bitmap = IMoRecognitionManager.getInstance().bytes2bitmap(nv21Data, previewSize.width, previewSize.height, format, orientation, flipx);
+                BitmapUtils.saveBitmapCache(cacheDir, bitmap, System.currentTimeMillis() + "");
+                BitmapUtils.recycleBitmap(bitmap);
+            }
+        }
+
         if (!matchSuccess.get() && !matchTimeout.get()) {
             long now = System.currentTimeMillis();
             if ((now - startExtractTime) <= MATCH_TIMEOUT_TIME) { //20秒内检测
                 // 此处输入的相机数据的人脸特帧提取结果会在setAsyncExtractCallback设置的callback中回调出来
-                IMoRecognitionManager.getInstance().execFrameBytes(nv21Data, previewSize.width, previewSize.height, format, orientation, flipx, cameraRotate, null);
+                IMoRecognitionManager.getInstance().execFrameBytes(nv21Data, previewSize.width, previewSize.height, format, orientation, flipx, cameraRotate,
+                        currentUserId != null);
             } else { //超过时间，弹出提示
                 matchTimeout.set(true);
                 if (!matchSuccess.get()) { //已经匹配成功就不谈超时提示了

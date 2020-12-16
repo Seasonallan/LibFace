@@ -2,12 +2,8 @@ package com.example.myapplication;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
-import android.view.View;
-
-import androidx.annotation.Nullable;
 
 import com.library.aimo.EasyLibUtils;
 import com.library.aimo.api.IMoRecognitionManager;
@@ -15,8 +11,6 @@ import com.library.aimo.api.IMoSDKManager;
 import com.library.aimo.api.StaticOpenApi;
 import com.library.aimo.config.SettingConfig;
 
-import java.io.File;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**
@@ -89,74 +83,7 @@ public class IMoBridge {
 //        public void onDestroy() {
 //        }
 //    }
-//
-//    public static abstract class LiveStaticRecordPanel {
-//        private Activity context;
-//
-//        public LiveStaticRecordPanel(Activity context) {
-//            this.context = context;
-//        }
-//
-//        protected abstract void onFaceMatch(Bitmap bitmap, float score, float[] points);
-//
-//        public void onCreate() {
-//        }
-//
-//
-//        File cacheDir;
-//
-//        private void initCamera(int width, int height) {
-//        }
-//
-//        public void onResume() {
-//        }
-//
-//        public void onPause() {
-//        }
-//
-//        public void onDestroy() {
-//        }
-//
-//        public void startFaceExtract() {
-//        }
-//
-//        public void stopFaceExtract() {
-//        }
-//
-//        public File getCacheDir() {
-//            return cacheDir;
-//        }
-//
-//        public Size getPreviewSize() {
-//            return new Size(1, 1);
-//            //return cameraContainer.getPreviewSize();
-//        }
-//    }
-//
-//    public static class Size implements Serializable {
-//        public int width;
-//        public int height;
-//
-//        public Size(int width, int height) {
-//            this.width = width;
-//            this.height = height;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return width + "x" + height;
-//        }
-//
-//        @Override
-//        public boolean equals(@Nullable Object obj) {
-//            boolean isEquals = false;
-//            if (obj instanceof Size) {
-//                Size other = (Size) obj;
-//                isEquals = ((width == other.width) && (height == other.height));
-//            }
-//            return isEquals;
-//        }
-//    }
+
 
 
     /**
@@ -175,17 +102,6 @@ public class IMoBridge {
         }
     }
 
-    public static abstract class LiveStaticRecordPanel extends com.library.aimo.LiveStaticRecordPanel {
-        public LiveStaticRecordPanel(Activity context) {
-            super(context);
-        }
-    }
-
-    public static class Size extends com.library.aimo.core.Size {
-        public Size(int width, int height) {
-            super(width, height);
-        }
-    }
 
     /**
      * 本地是否有存储头像

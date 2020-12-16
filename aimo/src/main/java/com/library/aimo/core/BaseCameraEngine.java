@@ -172,7 +172,7 @@ public abstract class BaseCameraEngine {
             if (null != permissionDispose) {
                 permissionDispose.dispose();
             }
-            permissionDispose = new RxPermissions(mActivity).request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+            permissionDispose = new RxPermissions(mActivity).request(Manifest.permission.CAMERA)
                     .subscribe(new Consumer<Boolean>() {
                         @Override
                         public void accept(Boolean b) {

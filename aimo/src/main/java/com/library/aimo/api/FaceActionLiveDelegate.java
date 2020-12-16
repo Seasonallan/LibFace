@@ -27,7 +27,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
 
     private FaceActionListener faceActionListener;
 
-    private boolean firstActionMach = false;//截取一张图片
     private ImoFaceActionLiveness.ActionLiveListener actionLiveListener = new ImoFaceActionLiveness.ActionLiveListener() {
         @Override
         public void onUserDisappear() {
@@ -40,7 +39,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
         @Override
         public void onActionDetectorSucceed(int faceActionType, int nextAction) {
             ImoLog.e("onActionLiveMatch>>> " + faceActionType + ", " + nextAction);
-            firstActionMach = true;
             if (faceActionListener != null) {
                 faceActionListener.onActionRight(faceActionType, faceActionType + 1);
             }
@@ -50,11 +48,7 @@ public class FaceActionLiveDelegate implements IFaceAction {
         public void onActionCheckFinish(Bitmap bitmap) {
             matchTimeout.set(true);
             if (faceActionListener != null) {
-                if (bitmap == null || bitmap.isRecycled()) {
-                    faceActionListener.onActionLiveMatch(faceBitmap);
-                } else {
-                    faceActionListener.onActionLiveMatch(bitmap);
-                }
+                faceActionListener.onActionLiveMatch(bitmap);
             }
         }
 
@@ -128,13 +122,7 @@ public class FaceActionLiveDelegate implements IFaceAction {
             lastRecordTime = System.currentTimeMillis();
             Bitmap bitmap = IMoRecognitionManager.getInstance().bytes2bitmap(bytes, previewSize.width, previewSize.height, format, orientation, flipx);
             BitmapUtils.saveBitmapCache(cacheDir, bitmap, System.currentTimeMillis() + "");
-            if (firstActionMach) {
-                firstActionMach = false;
-                faceBitmap = bitmap;
-            } else {
-                if (bitmap != null && !bitmap.isRecycled())
-                    bitmap.recycle();
-            }
+            BitmapUtils.recycleBitmap(bitmap);
         }
 
         if (!matchTimeout.get()) {
@@ -161,7 +149,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
         return null;
     }
 
-    public Bitmap faceBitmap;
 
     public int getCost() {
         return (int) (System.currentTimeMillis() - startExtractTime) / 1000;
@@ -170,10 +157,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
 
     @Override
     public void onDestroy() {
-        if (faceBitmap != null && !faceBitmap.isRecycled()) {
-            faceBitmap.recycle();
-            faceBitmap = null;
-        }
         imoFaceActionDetector.destroy();
     }
 
@@ -184,7 +167,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
     int[] checkFaceActionType;
 
     public void setAction(int[] type) {
-        firstActionMach = false;
         this.checkFaceActionType = type;
         matchTimeout.set(false);
         startExtractTime = System.currentTimeMillis();
@@ -192,7 +174,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
     }
 
     public void restart(int[] type){
-        firstActionMach = false;
         this.checkFaceActionType = type;
         imoFaceActionDetector.configCheckActionList(checkFaceActionType);
         imoFaceActionDetector.restartCheck();

@@ -196,7 +196,8 @@ public class IMoRecognitionManager {
     }
 
 
-    public synchronized void execFrameBytes(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, File cacheDir) {
+    private boolean faceMatchedOnce = false;
+    public synchronized void execFrameBytes(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, boolean checkScore) {
         // 如果有人脸并且当前没有在做异步特帧提取时
         if (!isAsyncExtracting) {
             isAsyncExtracting = true;
@@ -204,30 +205,44 @@ public class IMoRecognitionManager {
                 @Override
                 public void run() {
                     {
-                        if (imoFaceTracker != null) {
+                        int faceDisappear = -1;
+                        if (imoFaceTracker != null && imoFaceLiveness != null && imoFaceExtractor != null) {
                             //第一步：获取数据流的所有人脸信息 矩阵和五官位置
                             List<ImoFaceInfo> imoFaceInfoList = imoFaceTracker.execBytes(data, width, height, format, orientation);
-                            if (imoFaceLiveness != null && imoFaceInfoList.size() > 0) {
+                            if (imoFaceInfoList.size() > 0) {
                                 ImoFaceInfo biggestFace = FaceInfoUtil.getBiggestFace(imoFaceInfoList);
                                 if (FaceInfoUtil.IsStraightFace(biggestFace)) {
                                     float[] faceRect = FaceInfoUtil.getFaceRectFromImoFaceInfo(biggestFace);
                                     //第二步：获取头像位置的人脸的分数
                                     float[] score = imoFaceLiveness.exec(data, width, height, format, orientation, faceRect);
 
-                                    if (imoFaceExtractor != null && score.length > 0 && score[0] > 0.97) {//分数大于0.97，代表是人脸》》 开始跟本地特征值对比
-                                        float[][] points = FaceInfoUtil.getPointFromImoFaceInfo(imoFaceInfoList);
-                                        //第三步：获取人脸的特征值
-                                        ImoFaceFeature[] imoFaceFeatures = imoFaceExtractor.execBytes(data, width, height, format, points);
+                                    if (checkScore){//分数大于0.97，代表是人脸》》 开始跟本地特征值对比
+                                        if (score.length > 0 && score[0] > 0.97){
+                                            float[][] points = FaceInfoUtil.getPointFromImoFaceInfo(imoFaceInfoList);
+                                            //第三步：获取人脸的特征值
+                                            ImoFaceFeature[] imoFaceFeatures = imoFaceExtractor.execBytes(data, width, height, format, points);
+                                            if (null != asyncFrameCallback) {
+                                                asyncFrameCallback.onFaceMatch(data, width, height, format, orientation, flip, cameraRotate, imoFaceFeatures, score[0]);
+                                                faceMatchedOnce = true;
+                                                faceDisappear = -1;
+                                            }
+                                        }
+                                    }else{
                                         if (null != asyncFrameCallback) {
-                                            asyncFrameCallback.onFaceMatch(data, width, height, format, orientation, flip, cameraRotate, imoFaceFeatures, score[0]);
-                                            isAsyncExtracting = false;
-                                            return;
+                                            asyncFrameCallback.onFaceMatch(data, width, height, format, orientation, flip, cameraRotate, null, score[0]);
+                                            faceMatchedOnce = true;
+                                            faceDisappear = -1;
                                         }
                                     }
+                                }else{
+                                    faceDisappear = 2;
                                 }
+                            }else{
+                                faceDisappear = 1;
                             }
                         }
-                        if (null != asyncFrameCallback) {
+                        if (faceDisappear > 0 && null != asyncFrameCallback && faceMatchedOnce) {
+                            ImoLog.e("faceDisappear>> "+ faceDisappear);
                             asyncFrameCallback.onFaceDisappear();
                         }
                         isAsyncExtracting = false;

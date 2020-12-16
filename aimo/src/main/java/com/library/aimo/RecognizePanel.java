@@ -53,6 +53,16 @@ public abstract class RecognizePanel {
 
     private File cacheDir;
 
+    /**
+     * 禁用圆形裁剪
+     *
+     * @return
+     */
+    public RecognizePanel disableClip() {
+        clipCoverView.setVisibility(View.GONE);
+        return this;
+    }
+
     public View onCreate() {
         View parentView = getParentView();
         cameraContainer = parentView.findViewById(R.id.surface);
@@ -61,11 +71,17 @@ public abstract class RecognizePanel {
         initCamera(640, 480);
 
         IMoRecognitionManager.getInstance().init(SettingConfig.getAlgorithmNumThread(), null);
+
+        cacheDir = new File(context.getCacheDir(), "cacheBitmap");
+        if (!cacheDir.isDirectory()) {
+            cacheDir.mkdirs();
+        }
         if (isFaceRecognized()) {//人脸识别
             faceRecognizedDelegate = new FaceRecognizedDelegate(new FaceRecognizedDelegate.FaceExtractListener() {
                 @Override
-                public void onFaceMatch(Bitmap bitmap) {
-                    showFaceMatch(bitmap, false);
+                public void onFaceMatch(Bitmap bitmap, float score) {
+                    clipCoverView.showSuccess();
+                    onFaceRecognized(score, bitmap, getLocalCacheId());
                 }
 
                 @Override
@@ -75,12 +91,13 @@ public abstract class RecognizePanel {
 
                 @Override
                 public void onTimeout() {
-                    showFaceMatch(null, true);
+                    showRecognitionTimeoutDialog();
                 }
 
             });
-            faceRecognizedDelegate.init();
             faceRecognizedDelegate.setCurrentUserId(getLocalCacheId());
+            faceRecognizedDelegate.setCacheDir(cacheDir);
+            faceRecognizedDelegate.init();
         } else {//人脸录入
             faceActionLiveDelegate = new FaceActionLiveDelegate(new FaceActionLiveDelegate.FaceActionListener() {
 
@@ -106,10 +123,6 @@ public abstract class RecognizePanel {
                     onFaceRecorded(getLocalCacheId(), bitmap);
                 }
             });
-            cacheDir = new File(context.getCacheDir(), "cacheBitmap");
-            if (!cacheDir.isDirectory()) {
-                cacheDir.mkdirs();
-            }
             faceActionLiveDelegate.setCacheDir(cacheDir);
             faceActionLiveDelegate.init();
         }
@@ -244,15 +257,6 @@ public abstract class RecognizePanel {
     }
 
 
-    private void showFaceMatch(Bitmap bitmap, boolean timeout) {
-        if (timeout) {
-            showRecognitionTimeoutDialog();
-        } else {
-            clipCoverView.showSuccess();
-            onFaceRecognized(bitmap, getLocalCacheId());
-        }
-    }
-
     /**
      * 人脸是否在框内
      */
@@ -284,6 +288,7 @@ public abstract class RecognizePanel {
      * @return
      */
     protected abstract String getLocalCacheId();
+
     /**
      * 人脸录入结果
      *
@@ -291,13 +296,14 @@ public abstract class RecognizePanel {
      * @param bitmap
      */
     protected abstract void onFaceRecorded(String id, Bitmap bitmap);
+
     /**
      * 人脸识别结果
      *
      * @param bitmap
      * @param id
      */
-    protected abstract void onFaceRecognized(Bitmap bitmap, String id);
+    protected abstract void onFaceRecognized(float score, Bitmap bitmap, String id);
 
     /**
      * 显示超时弹窗
