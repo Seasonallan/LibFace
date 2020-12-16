@@ -66,4 +66,5 @@ dependencies {
 
     //aimo人脸识别库
     api project(path: ':aimo')
+ 
 }
