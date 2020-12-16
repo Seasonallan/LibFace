@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,7 +22,7 @@ import com.key.Key;
 import com.library.aimo.util.BitmapUtils;
 import com.library.aimo.video.record.VideoEncoder;
 
-public class ActionActivity extends AppCompatActivity {
+public class DemoFaceActionActivity extends AppCompatActivity {
 
     final int REQUEST_STORAGE_PERMISSION = 404;
     final String PERMISSION = Manifest.permission.READ_EXTERNAL_STORAGE;
@@ -75,7 +74,13 @@ public class ActionActivity extends AppCompatActivity {
         IMoBridge.init(getApplication(), Key.key, new IMoBridge.IImoInitListener() {
             @Override
             public void onSuccess() {
-                recognizePanel = new IMoBridge.RecognizePanel(ActionActivity.this) {
+                recognizePanel = new IMoBridge.RecognizePanel(DemoFaceActionActivity.this) {
+
+                    @Override
+                    protected int getCoverColor() {
+                        return 0xffffffff;
+                    }
+
                     @Override
                     protected void onFaceRectStatus(boolean isRight) {
                         if (!isRight) {
@@ -107,7 +112,7 @@ public class ActionActivity extends AppCompatActivity {
                         if (currentStatus) {
                             currentStatus = false;
                             verifyTvStatus.setText(R.string.face_not_rect);
-                            Toast.makeText(ActionActivity.this, getResources().getString(R.string.face_not_recognized), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DemoFaceActionActivity.this, getResources().getString(R.string.face_not_recognized), Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -153,7 +158,7 @@ public class ActionActivity extends AppCompatActivity {
                             public void run() {
                                 verifyTvStatus.setText(R.string.verify_checking);
                                 recognizePanel.onPause();
-                                progressDialog = new ProgressDialog(ActionActivity.this);
+                                progressDialog = new ProgressDialog(DemoFaceActionActivity.this);
                                 progressDialog.setTitle("tip");
                                 progressDialog.setMessage("Loading...");
                                 progressDialog.setCancelable(true);
@@ -169,6 +174,8 @@ public class ActionActivity extends AppCompatActivity {
                                                 if (progressDialog != null) {
                                                     progressDialog.dismiss();
                                                 }
+                                                Toast.makeText(DemoFaceActionActivity.this,
+                                                        VideoEncoder.getOutputVideo().toString(), Toast.LENGTH_SHORT).show();
                                                 Log.e("DemoLog", "图片地址：" + cacheBitmap);
                                                 Log.e("DemoLog", "视频地址：" + VideoEncoder.getOutputVideo().toString());
                                                 Log.e("DemoLog", "执行上传文件操作");
@@ -187,7 +194,7 @@ public class ActionActivity extends AppCompatActivity {
                     @Override
                     protected void showRecognitionTimeoutDialog() {
                         VideoEncoder.clearCaches(recognizePanel.getCacheDir());
-                        AlertDialog alertDialog1 = new AlertDialog.Builder(ActionActivity.this)
+                        AlertDialog alertDialog1 = new AlertDialog.Builder(DemoFaceActionActivity.this)
                                 .setTitle(R.string.verify_error_title)//标题
                                 .setMessage(R.string.verify_error_recognized_fail)//内容
                                 .setIcon(R.mipmap.ic_launcher)//图标
@@ -216,7 +223,7 @@ public class ActionActivity extends AppCompatActivity {
 
             @Override
             public void onFail(int code) {
-                Toast.makeText(ActionActivity.this, getResources().getString(code == -1 ? R.string.aimo_not_support : R.string.face_sdk_init_fail), Toast.LENGTH_SHORT).show();
+                Toast.makeText(DemoFaceActionActivity.this, getResources().getString(code == -1 ? R.string.aimo_not_support : R.string.face_sdk_init_fail), Toast.LENGTH_SHORT).show();
                 finish();
             }
         });

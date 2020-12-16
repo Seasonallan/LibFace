@@ -16,8 +16,7 @@ public class IMoSDKManager {
     private AtomicBoolean sdkInitSuccess = new AtomicBoolean();
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    public static String KEY = "CA8B47C8137613B5";
-    //public static String KEY = "EAD06EB2476A11C7";   //绑定包名com.huke.socialcontact
+    public static String KEY;
     public FaceSDKInitListener faceSDKInitListener;
     public void initImoSDK(FaceSDKInitListener listener) {
         this.faceSDKInitListener = listener;

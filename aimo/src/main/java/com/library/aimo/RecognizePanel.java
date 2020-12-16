@@ -28,8 +28,7 @@ import java.util.Random;
 
 
 /**
- * <p>
- * Created by 火龙裸 on 2017/9/6.
+ * 人脸识别，人脸动作 组件
  */
 
 public abstract class RecognizePanel {
@@ -53,31 +52,19 @@ public abstract class RecognizePanel {
         return LayoutInflater.from(context).inflate(R.layout.inc_face_panel, null);
     }
 
+    protected int getCoverColor() {
+        return 0xff0C1529;
+    }
+
     public View parentView;
 
     File cacheDir;
 
     public void onCreate() {
-
-        if (getCPUAbi().equals("x86")) {
-            showToast("当前设备不支持人脸识别");
-            context.finish();
-            return;
-        }
-        IMoSDKManager.get().initImoSDK(new IMoSDKManager.FaceSDKInitListener() {
-            @Override
-            public void onInitResult(boolean success, int errorCode) {
-                if (!success) {
-                    showToast(String.format("%s(%s)", "人脸功能初始化失败", String.valueOf(errorCode)));
-                    context.finish();
-                }
-            }
-        });
-
         parentView = getParentView();
         cameraContainer = parentView.findViewById(R.id.surface);
         rl_layout_clip = parentView.findViewById(R.id.rl_layout_clip);
-
+        rl_layout_clip.setBackgroundColor(getCoverColor());
         initCamera(640, 480);
 
         if (isFaceRecognized()) {//人脸识别
@@ -143,22 +130,6 @@ public abstract class RecognizePanel {
     private FaceRecognizedDelegate faceRecognizedDelegate;
 
 
-    private void showToast(String content) {
-        Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
-    }
-
-    public static String getCPUAbi() {
-        String arch = "";//cpu类型
-        try {
-            Class<?> clazz = Class.forName("android.os.SystemProperties");
-            Method get = clazz.getDeclaredMethod("get", new Class[]{String.class});
-            arch = (String) get.invoke(clazz, new Object[]{"ro.product.cpu.abi"});
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return arch;
-    }
-
     RectF areaRect = null;
 
     private void initCamera(int width, int height) {
@@ -185,8 +156,8 @@ public abstract class RecognizePanel {
                         areaRect = rl_layout_clip.getArea();
                     }
                     if (currentRect != null && areaRect != null) {
-                        if (currentRect.width() < areaRect.width()/2){
-                            currentRect.right = currentRect.right + currentRect.width() * 4 / 5;
+                        if (currentRect.width() < areaRect.width() / 2) {
+                            currentRect.right = currentRect.right + currentRect.width() * 2 / 5;
                             currentRect.bottom = currentRect.bottom + currentRect.height() / 3;
                         }
                         currentRect.offset(cameraContainer.getWidth() * 1 / 8, -50);
@@ -269,7 +240,7 @@ public abstract class RecognizePanel {
         if (null != faceRecognizedDelegate) {
             faceRecognizedDelegate.onDestroy();
         }
-        if (cameraContainer != null){
+        if (cameraContainer != null) {
             cameraContainer.onDestroy();
             cameraContainer = null;
         }
@@ -338,11 +309,5 @@ public abstract class RecognizePanel {
      * 显示超时弹窗
      */
     protected abstract void showRecognitionTimeoutDialog();
-
-
-    protected void retry() {
-        rl_layout_clip.restart();
-        faceRecognizedDelegate.startFaceExtract();
-    }
 
 }
