@@ -67,8 +67,8 @@ public abstract class RecognizePanel {
         rl_layout_clip.setBackgroundColor(getCoverColor());
         initCamera(640, 480);
 
+        IMoRecognitionManager.getInstance().init(SettingConfig.getAlgorithmNumThread(), null);
         if (isFaceRecognized()) {//人脸识别
-            IMoRecognitionManager.getInstance().init(SettingConfig.getAlgorithmNumThread(), null);
             faceRecognizedDelegate = new FaceRecognizedDelegate(new FaceRecognizedDelegate.FaceExtractListener() {
                 @Override
                 public void onFaceMatch(Bitmap bitmap) {
@@ -85,7 +85,6 @@ public abstract class RecognizePanel {
             faceRecognizedDelegate.setCurrentUserId(getLocalCacheId());
             faceRecognizedDelegate.startFaceExtract();
         } else {//人脸录入
-            IMoRecognitionManager.getInstance().init(SettingConfig.getAlgorithmNumThread(), null);
             faceActionLiveDelegate = new FaceActionLiveDelegate(new FaceActionLiveDelegate.FaceActionListener() {
 
                 @Override
@@ -108,7 +107,6 @@ public abstract class RecognizePanel {
                 @Override
                 public void onActionLiveMatch(Bitmap bitmap) {
                     rl_layout_clip.showSuccess();
-                    ImoLog.e("onActionCheckFinish>>> " + bitmap + ", 是否被回收？" + bitmap.isRecycled());
                     onFaceRecorded(getLocalCacheId(), bitmap);
                 }
             });
@@ -156,8 +154,8 @@ public abstract class RecognizePanel {
                         areaRect = rl_layout_clip.getArea();
                     }
                     if (currentRect != null && areaRect != null) {
-                        if (currentRect.width() < areaRect.width() / 2) {
-                            currentRect.right = currentRect.right + currentRect.width() * 2 / 5;
+                        if (currentRect.width() < areaRect.width() / 2) {//矩形宽高补位
+                            currentRect.right = currentRect.right + currentRect.width() * 3 / 5;
                             currentRect.bottom = currentRect.bottom + currentRect.height() / 3;
                         }
                         currentRect.offset(cameraContainer.getWidth() * 1 / 8, -50);
@@ -210,7 +208,7 @@ public abstract class RecognizePanel {
             faceActionLiveDelegate.restart(actions);
         } else {
             faceActionLiveDelegate.setAction(actions);
-            cameraContainer.onResume();
+            onResume();
         }
         onActionChanged(-1, actions[0]);
     }

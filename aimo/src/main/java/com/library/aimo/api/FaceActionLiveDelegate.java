@@ -48,7 +48,6 @@ public class FaceActionLiveDelegate implements IFaceAction {
 
         @Override
         public void onActionCheckFinish(Bitmap bitmap) {
-            ImoLog.e("onActionCheckFinish>>> " + bitmap + ", 是否被回收？" + bitmap.isRecycled());
             matchTimeout.set(true);
             if (faceActionListener != null) {
                 if (bitmap == null || bitmap.isRecycled()) {

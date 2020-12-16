@@ -19,8 +19,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.key.Key;
+import com.library.aimo.api.StaticOpenApi;
 import com.library.aimo.util.BitmapUtils;
 import com.library.aimo.video.record.VideoEncoder;
+
+import java.util.Arrays;
 
 public class DemoFaceActionActivity extends AppCompatActivity {
 
@@ -28,6 +31,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
     final String PERMISSION = Manifest.permission.READ_EXTERNAL_STORAGE;
 
     TextView verifyTvStatus;
+    TextView verifyTvResult;
     LinearLayout verifyRlFace;
 
     @Override
@@ -36,6 +40,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_action);
 
         verifyTvStatus = findViewById(R.id.verify_tv_status);
+        verifyTvResult = findViewById(R.id.verify_tv_result);
         verifyRlFace = findViewById(R.id.verify_rl_face);
 
         if (ContextCompat.checkSelfPermission(this, PERMISSION) == PackageManager.PERMISSION_GRANTED) {
@@ -153,6 +158,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                     @Override
                     protected void onFaceRecorded(String id, Bitmap bitmap) {
                         final String cacheBitmap = BitmapUtils.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
+                        final float[] features = IMoBridge.getBitmapFeature(bitmap);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -174,11 +180,16 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                                 if (progressDialog != null) {
                                                     progressDialog.dismiss();
                                                 }
-                                                Toast.makeText(DemoFaceActionActivity.this,
-                                                        VideoEncoder.getOutputVideo().toString(), Toast.LENGTH_SHORT).show();
-                                                Log.e("DemoLog", "图片地址：" + cacheBitmap);
-                                                Log.e("DemoLog", "视频地址：" + VideoEncoder.getOutputVideo().toString());
-                                                Log.e("DemoLog", "执行上传文件操作");
+                                                StringBuffer stringBuffer = new StringBuffer();
+                                                stringBuffer.append("图片地址：" + cacheBitmap);
+                                                stringBuffer.append("\n");
+                                                stringBuffer.append("视频地址：" + VideoEncoder.getOutputVideo().toString());
+                                                stringBuffer.append("\n");
+                                                stringBuffer.append("视频时长：" + recognizePanel.getTime() + " 秒");
+                                                stringBuffer.append("\n");
+                                                stringBuffer.append("图片特征值：" + Arrays.toString(features));
+
+                                                verifyTvResult.setText(stringBuffer.toString());
                                             }
                                         });
                                     }

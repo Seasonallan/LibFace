@@ -34,6 +34,20 @@
 
 
         </LinearLayout>
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:paddingTop="8dp">
+
+            <TextView
+                android:id="@+id/verify_tv_result"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="17sp" />
+        </ScrollView>
     </LinearLayout>
 
 </RelativeLayout>
