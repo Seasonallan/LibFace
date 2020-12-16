@@ -1,7 +1,6 @@
 package com.library.aimo.core;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
@@ -9,19 +8,17 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.library.aimo.EasyLibUtils;
 import com.library.aimo.util.ImoLog;
 import com.library.aimo.util.WeakHandler;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
-
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public abstract class BaseCameraEngine {
     protected static final String TAG = "CameraEngine";
@@ -44,9 +41,8 @@ public abstract class BaseCameraEngine {
     protected SurfaceTexture mSurfaceTexture = null;
 
     protected Context mContext;
-    protected Activity mActivity;
+    protected AppCompatActivity mActivity;
     protected int mActivityRotate;
-    protected Disposable permissionDispose = null;
     protected final Vector<CameraCallBack> cameraCallBacks = new Vector<>();
 
     // FLAGS 超过两个换成按位读取
@@ -61,10 +57,10 @@ public abstract class BaseCameraEngine {
     public BaseCameraEngine(Context context, boolean isPreviewTargetCustom) {
         mContext = context;
         mIsPreviewTargetCustom = isPreviewTargetCustom;
-        if (context instanceof Activity) {
-            this.mActivity = (Activity) context;
+        if (context instanceof AppCompatActivity) {
+            this.mActivity = (AppCompatActivity) context;
         } else if (null != EasyLibUtils.sTopActivityWeakRef) {
-            this.mActivity = EasyLibUtils.sTopActivityWeakRef.get();
+            this.mActivity = (AppCompatActivity) EasyLibUtils.sTopActivityWeakRef.get();
         }
         mActivityRotate = CameraUtils.getActivityDisplayOrientation(this.mActivity);
         mainHandler = new WeakHandler(Looper.getMainLooper());
@@ -164,40 +160,41 @@ public abstract class BaseCameraEngine {
         });
     }
 
+    FastPermissions fastpermissions;
     public void onResume() {
         ImoLog.d(TAG, "onResume 0 mActivity=" + mActivity);
         if (null == mActivity) {
             openCamera();
         } else {
-            if (null != permissionDispose) {
-                permissionDispose.dispose();
-            }
-            permissionDispose = new RxPermissions(mActivity).request(Manifest.permission.CAMERA)
-                    .subscribe(new Consumer<Boolean>() {
-                        @Override
-                        public void accept(Boolean b) {
-                            if (b) {
-                                openCamera();
-                            } else {
-                                synchronized (cameraCallBacks) {
-                                    for (CameraCallBack cameraCallBack : cameraCallBacks) {
-                                        if (cameraCallBack != null) {
-                                            cameraCallBack.openCameraError(new Exception("获取权限失败"));
+            if (fastpermissions == null){
+                fastpermissions = new FastPermissions(mActivity);
+                fastpermissions.need(Manifest.permission.CAMERA)
+                        .subscribe(new FastPermissions.Subscribe() {
+                            @Override
+                            public void onResult(int requestCode, boolean allGranted, String[] permissions) {
+                                if (allGranted){
+                                    //权限允许后进行的操作
+                                    openCamera();
+                                }else{
+                                    //权限被拒绝
+                                    synchronized (cameraCallBacks) {
+                                        for (CameraCallBack cameraCallBack : cameraCallBacks) {
+                                            if (cameraCallBack != null) {
+                                                cameraCallBack.openCameraError(new Exception("获取权限失败"));
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    });
+                        }).request(1);
+            }
+
         }
         ImoLog.d(TAG, "onResume 1");
     }
 
     public void onPause() {
         ImoLog.d(TAG, "onPause 0");
-        if (null != permissionDispose) {
-            permissionDispose.dispose();
-        }
         closeCamera();
         ImoLog.d(TAG, "onPause 1");
     }

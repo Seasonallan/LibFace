@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -178,7 +179,7 @@ public class CameraContainer extends FrameLayout implements CameraCallBack {
 
     @Override
     public void openCameraError(Exception e) {
-
+        Toast.makeText(getContext(), "permission denied", Toast.LENGTH_SHORT).show();
     }
 
     public PointF getTextureDistance() {

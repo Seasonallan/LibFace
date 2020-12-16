@@ -53,9 +53,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
-    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
-
     implementation(name: 'core-release', ext: 'aar')
     implementation(name: 'libFaceLiveness-release', ext: 'aar')
     implementation(name: 'libFaceDetector-release', ext: 'aar')
@@ -63,9 +60,5 @@ dependencies {
     implementation(name: 'libFaceExtractorV3_1-release', ext: 'aar')
     implementation(name: 'libFaceTrackerDetector-release', ext: 'aar')
 
-    def room_version = "2.2.5"
-    implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
-    implementation "org.reactivestreams:reactive-streams:1.0.2"
 
 }
