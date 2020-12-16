@@ -53,12 +53,12 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation(name: 'core-release', ext: 'aar')
-    implementation(name: 'libFaceLiveness-release', ext: 'aar')
-    implementation(name: 'libFaceDetector-release', ext: 'aar')
-    implementation(name: 'libFaceActionDetector-release', ext: 'aar')
-    implementation(name: 'libFaceExtractorV3_1-release', ext: 'aar')
-    implementation(name: 'libFaceTrackerDetector-release', ext: 'aar')
+    implementation(name: 'core-release', ext: 'aar'){ transitive = true}
+    implementation(name: 'libFaceLiveness-release', ext: 'aar'){ transitive = true}
+    implementation(name: 'libFaceDetector-release', ext: 'aar'){ transitive = true}
+    implementation(name: 'libFaceActionDetector-release', ext: 'aar'){ transitive = true}
+    implementation(name: 'libFaceExtractorV3_1-release', ext: 'aar'){ transitive = true}
+    implementation(name: 'libFaceTrackerDetector-release', ext: 'aar'){ transitive = true}
 
 
 }
