@@ -46,6 +46,24 @@ public class FaceInfoUtil {
         return pointss;
     }
 
+    /**
+     * 获取人脸的点位信息
+     * @param imoFaceDetectInfos
+     * @return
+     */
+    public static float[][] getPointFromImoFaceInfo(List<ImoFaceInfo> imoFaceDetectInfos) {
+        if (null == imoFaceDetectInfos) {
+            return null;
+        }
+
+        float[][] pointss = new float[imoFaceDetectInfos.size()][];
+        for (int i = 0; i < imoFaceDetectInfos.size(); i++) {
+            pointss[i] = imoFaceDetectInfos.get(i).getPoints();
+        }
+
+        return pointss;
+    }
+
 
     public static float[] getFaceRectFromImoFaceInfo(ImoFaceInfo imoFaceDetectInfos) {
         if (imoFaceDetectInfos != null) {

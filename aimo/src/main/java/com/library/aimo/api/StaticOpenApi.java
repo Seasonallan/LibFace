@@ -58,7 +58,7 @@ public class StaticOpenApi {
      */
     public static int findMatchResults(float[] feature, Bitmap bitmap) {
         float maxScore = -1;
-        List<FaceRecognitionInfo> faceRecognitionInfos = IMoRecognitionManager.getInstance().getFaceRecognitionInfos(bitmap);
+        List<FaceRecognitionInfo> faceRecognitionInfos = IMoRecognitionManager.getInstance().getFaceRecognitionInfoLists(bitmap);
         if (faceRecognitionInfos != null && faceRecognitionInfos.size() > 0) {
             for (FaceRecognitionInfo faceRecognitionInfo : faceRecognitionInfos) {
                 if (null != faceRecognitionInfo.getImoFaceFeature()) {

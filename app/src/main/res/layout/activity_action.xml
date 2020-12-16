@@ -11,10 +11,11 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/verify_tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="人脸识别" />
+            android:text="动作识别验证" />
 
         <TextView
             android:id="@+id/verify_tv_status"
@@ -26,7 +27,7 @@
             android:textSize="17sp" />
 
         <LinearLayout
-            android:id="@+id/verify_rl_face"
+            android:id="@+id/verify_ll_face"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"

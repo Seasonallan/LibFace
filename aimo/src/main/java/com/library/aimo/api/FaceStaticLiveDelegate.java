@@ -5,6 +5,7 @@ import android.graphics.RectF;
 
 import com.aimall.core.define.ImoImageFormat;
 import com.aimall.core.define.ImoImageOrientation;
+import com.aimall.sdk.extractor.bean.ImoFaceFeature;
 import com.library.aimo.util.BitmapUtils;
 import com.library.aimo.config.SettingConfig;
 import com.library.aimo.core.BaseCameraEngine;
@@ -45,11 +46,17 @@ public class FaceStaticLiveDelegate implements IFaceAction {
     @Override
     public void init() {
         // 订阅异步特帧提取回调
-        IMoRecognitionManager.getInstance().setAsyncFrameCallback((rectBitmap, data, width, height, format, orientation, flipx, cameraRotate, faceRecognitionInfos, score) -> {
-            if (faceRecognitionInfos != null) {
-                if (null != faceRecognitionInfos.getPoints()) {
+        IMoRecognitionManager.getInstance().setAsyncFrameCallback(new IMoRecognitionManager.AsyncFrameCallback() {
+            @Override
+            public void onFaceDisappear() {
+
+            }
+
+            @Override
+            public void onFaceMatch(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, ImoFaceFeature[] faceInfoLists, float score) {
+                if (faceInfoLists != null) {
                     if (null != IFaceMatchListener) {
-                        IFaceMatchListener.onFaceMatch(rectBitmap, score, faceRecognitionInfos.getPoints());
+                        IFaceMatchListener.onFaceMatch(IMoRecognitionManager.getInstance().bytes2bitmap(data, width, height, format, orientation, flip), score, null);
                     }
                 }
             }

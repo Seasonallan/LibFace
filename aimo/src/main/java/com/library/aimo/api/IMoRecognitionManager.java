@@ -14,7 +14,6 @@ import com.aimall.sdk.facedetector.bean.ImoFaceDetectInfo;
 import com.aimall.sdk.faceliveness.ImoFaceLiveness;
 import com.aimall.sdk.trackerdetector.ImoFaceTrackerDetector;
 import com.aimall.sdk.trackerdetector.bean.ImoFaceInfo;
-import com.aimall.sdk.trackerdetector.utils.PointUtils;
 import com.library.aimo.bean.FaceRecognitionInfo;
 import com.library.aimo.config.SettingConfig;
 import com.library.aimo.util.BitmapUtils;
@@ -143,27 +142,27 @@ public class IMoRecognitionManager {
      * 获取bitmap中人脸信息以及特征值，用于底库录入和图片比对
      */
     public synchronized ArrayList<FaceRecognitionInfo> execBitmap(Bitmap bitmap) {
-        ArrayList<FaceRecognitionInfo> faceRecognitionInfos = new ArrayList<>();
+        ArrayList<FaceRecognitionInfo> faceRecognitionInfoLists = new ArrayList<>();
         if (null != imoFaceDetector && null != imoFaceExtractor) {
-            List<ImoFaceDetectInfo> imoFaceInfos = imoFaceDetector.execBitmap(bitmap, ImoImageOrientation.IMO_IMAGE_UP);
-            if (imoFaceInfos.size() != 0) {
-                float[][] points = FaceInfoUtil.getPointFromImoFaceDetectInfo(imoFaceInfos);
+            List<ImoFaceDetectInfo> imoFaceInfoLists = imoFaceDetector.execBitmap(bitmap, ImoImageOrientation.IMO_IMAGE_UP);
+            if (imoFaceInfoLists.size() != 0) {
+                float[][] points = FaceInfoUtil.getPointFromImoFaceDetectInfo(imoFaceInfoLists);
                 ImoFaceFeature[] imoFaceFeatures = imoFaceExtractor.execBitmap(bitmap, points);
-                faceRecognitionInfos = generateFaceRecognitionInfos(imoFaceInfos, imoFaceFeatures);
+                faceRecognitionInfoLists = generateFaceRecognitionInfoLists(imoFaceInfoLists, imoFaceFeatures);
             }
         }
-        return faceRecognitionInfos;
+        return faceRecognitionInfoLists;
     }
 
 
-    public List<FaceRecognitionInfo> getFaceRecognitionInfos(Bitmap bitmap) {
+    public List<FaceRecognitionInfo> getFaceRecognitionInfoLists(Bitmap bitmap) {
         // 先提取当前这一帧图像的人脸信息
-        List<ImoFaceDetectInfo> imoFaceInfos = imoFaceDetector.execBitmap(bitmap, ImoImageOrientation.IMO_IMAGE_UP);
-        if (imoFaceInfos != null && imoFaceInfos.size() > 0) {
+        List<ImoFaceDetectInfo> imoFaceInfoLists = imoFaceDetector.execBitmap(bitmap, ImoImageOrientation.IMO_IMAGE_UP);
+        if (imoFaceInfoLists != null && imoFaceInfoLists.size() > 0) {
             // 人脸信息转化为float二维数组，因为提取特帧值需要用到人脸的点位信息
-            float[][] points = FaceInfoUtil.getPointFromImoFaceDetectInfo(imoFaceInfos);
+            float[][] points = FaceInfoUtil.getPointFromImoFaceDetectInfo(imoFaceInfoLists);
             ImoFaceFeature[] imoFaceFeatures = imoFaceExtractor.execBitmap(bitmap, points);
-            return generateFaceRecognitionInfos(imoFaceInfos, imoFaceFeatures);
+            return generateFaceRecognitionInfoLists(imoFaceInfoLists, imoFaceFeatures);
         }
         return null;
     }
@@ -171,15 +170,16 @@ public class IMoRecognitionManager {
 
     /**
      * 数据流 转化为 bitmap 图片
+     *
      * @param nv21Data
      * @param width
      * @param height
      * @param format
      * @param orientation
-     * @param flipx
+     * @param flip
      * @return
      */
-    public Bitmap bytes2bitmap(byte[] nv21Data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flipx) {
+    public Bitmap bytes2bitmap(byte[] nv21Data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip) {
         //转换为bitmap，可以自行根据faceRect进行头像裁剪等操作
         if (imoFaceLiveness == null) {
             return null;
@@ -188,7 +188,7 @@ public class IMoRecognitionManager {
         Bitmap bitmap = imoFaceLiveness.convertYuvToBitmap(nv21Data, width, height, format);
         //旋转图片
         bitmap = BitmapUtils.rotateBitmap(bitmap, -orientation.value(), true);
-        if (flipx) {
+        if (flip) {
             // 前置相机翻转照片
             bitmap = BitmapUtils.getFilpBitmap(bitmap, true);
         }
@@ -196,7 +196,7 @@ public class IMoRecognitionManager {
     }
 
 
-    public synchronized void execFrameBytes(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flipx, int cameraRotate, File cacheDir) {
+    public synchronized void execFrameBytes(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, File cacheDir) {
         // 如果有人脸并且当前没有在做异步特帧提取时
         if (!isAsyncExtracting) {
             isAsyncExtracting = true;
@@ -205,22 +205,30 @@ public class IMoRecognitionManager {
                 public void run() {
                     {
                         if (imoFaceTracker != null) {
-                            //获取数据流的人脸信息
+                            //第一步：获取数据流的所有人脸信息 矩阵和五官位置
                             List<ImoFaceInfo> imoFaceInfoList = imoFaceTracker.execBytes(data, width, height, format, orientation);
                             if (imoFaceLiveness != null && imoFaceInfoList.size() > 0) {
                                 ImoFaceInfo biggestFace = FaceInfoUtil.getBiggestFace(imoFaceInfoList);
                                 if (FaceInfoUtil.IsStraightFace(biggestFace)) {
                                     float[] faceRect = FaceInfoUtil.getFaceRectFromImoFaceInfo(biggestFace);
-                                    //获取头像位置的人脸的分数
+                                    //第二步：获取头像位置的人脸的分数
                                     float[] score = imoFaceLiveness.exec(data, width, height, format, orientation, faceRect);
 
-                                    if (null != asyncFrameCallback && score.length > 0) {
-                                        ImoFaceInfo convertFaceInfo = PointUtils.convertImoFaceInfo(biggestFace, width, height, orientation.value(), flipx);
-                                        asyncFrameCallback.onResult(bytes2bitmap(data, width, height, format, orientation, flipx),
-                                                data, width, height, format, orientation, flipx, cameraRotate, convertFaceInfo, score[0]);
+                                    if (imoFaceExtractor != null && score.length > 0 && score[0] > 0.97) {//分数大于0.97，代表是人脸》》 开始跟本地特征值对比
+                                        float[][] points = FaceInfoUtil.getPointFromImoFaceInfo(imoFaceInfoList);
+                                        //第三步：获取人脸的特征值
+                                        ImoFaceFeature[] imoFaceFeatures = imoFaceExtractor.execBytes(data, width, height, format, points);
+                                        if (null != asyncFrameCallback) {
+                                            asyncFrameCallback.onFaceMatch(data, width, height, format, orientation, flip, cameraRotate, imoFaceFeatures, score[0]);
+                                            isAsyncExtracting = false;
+                                            return;
+                                        }
                                     }
                                 }
                             }
+                        }
+                        if (null != asyncFrameCallback) {
+                            asyncFrameCallback.onFaceDisappear();
                         }
                         isAsyncExtracting = false;
                     }
@@ -257,25 +265,26 @@ public class IMoRecognitionManager {
     }
 
 
-    private static ArrayList<FaceRecognitionInfo> generateFaceRecognitionInfos(List<ImoFaceDetectInfo> imoFaceInfos, ImoFaceFeature[] imoFaceFeatures) {
-        ArrayList<FaceRecognitionInfo> faceRecognitionInfos = new ArrayList<>();
-        if (null != imoFaceInfos) {
-            for (int i = 0; i < imoFaceInfos.size(); ++i) {
+    private static ArrayList<FaceRecognitionInfo> generateFaceRecognitionInfoLists(List<ImoFaceDetectInfo> imoFaceInfoLists, ImoFaceFeature[] imoFaceFeatures) {
+        ArrayList<FaceRecognitionInfo> faceRecognitionInfoLists = new ArrayList<>();
+        if (null != imoFaceInfoLists) {
+            for (int i = 0; i < imoFaceInfoLists.size(); ++i) {
                 FaceRecognitionInfo faceRecognitionInfo = new FaceRecognitionInfo();
-                faceRecognitionInfo.setImoFaceDetectInfo(imoFaceInfos.get(i));
-                if (null != imoFaceFeatures) {
-                    faceRecognitionInfo.setImoFaceFeature(imoFaceFeatures[i]);
+                faceRecognitionInfo.setImoFaceDetectInfo(imoFaceInfoLists.get(i));
+                if (null != imoFaceFeatures && imoFaceFeatures.length > 0) {
+                    faceRecognitionInfo.setImoFaceFeature(imoFaceFeatures[0]);
                 }
-                faceRecognitionInfos.add(faceRecognitionInfo);
+                faceRecognitionInfoLists.add(faceRecognitionInfo);
             }
         }
-        return faceRecognitionInfos;
+        return faceRecognitionInfoLists;
     }
 
 
     @WorkerThread
     public interface AsyncFrameCallback {
-        void onResult(Bitmap bitmap, byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flipx, int cameraRotate, ImoFaceInfo faceInfos, float score);
+        void onFaceDisappear();
+        void onFaceMatch(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, ImoFaceFeature[] faceInfoLists, float score);
     }
 
     public interface InitListener {

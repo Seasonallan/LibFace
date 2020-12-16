@@ -5,10 +5,13 @@ import android.graphics.RectF;
 
 import com.aimall.core.define.ImoImageFormat;
 import com.aimall.core.define.ImoImageOrientation;
+import com.aimall.sdk.extractor.ImoFaceExtractor;
+import com.aimall.sdk.extractor.bean.ImoFaceFeature;
 import com.library.aimo.config.SettingConfig;
 import com.library.aimo.config.SharedPreferencesUtils;
 import com.library.aimo.core.BaseCameraEngine;
 import com.library.aimo.core.Size;
+import com.library.aimo.util.ImoLog;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,10 +28,12 @@ public class FaceRecognizedDelegate implements IFaceAction {
     public interface FaceExtractListener {
         void onFaceMatch(Bitmap bitmap);
 
+        void onFaceDisappear();
+
         void onTimeout();
     }
 
-    private static final int MATCH_SUCCESS_SCORE = 90;
+
     private static final long MATCH_TIMEOUT_TIME = 10 * 1000; //匹配超时时间
     private FaceExtractListener faceExtractListener;
 
@@ -49,20 +54,33 @@ public class FaceRecognizedDelegate implements IFaceAction {
     @Override
     public void init() {
         // 订阅异步特帧提取回调
-        IMoRecognitionManager.getInstance().setAsyncFrameCallback((rectBitmap, data, width, height, format, orientation, flipx, cameraRotate, faceRecognitionInfoLists, score) -> {
+        IMoRecognitionManager.getInstance().setAsyncFrameCallback(new IMoRecognitionManager.AsyncFrameCallback() {
+            @Override
+            public void onFaceDisappear() {
+                if (null != faceExtractListener) {
+                    faceExtractListener.onFaceDisappear();
+                }
+            }
 
-            if (null == features || faceRecognitionInfoLists == null || faceRecognitionInfoLists.getPoints() == null) {
-                return;
-            }
-            if (score < MATCH_SUCCESS_SCORE){//识别的人脸 分值没到90分
-                return;
-            }
-            float matchScore = StaticOpenApi.compare(features, faceRecognitionInfoLists.getPoints());
-            if (matchScore >= MATCH_SUCCESS_SCORE) {//匹配两张人脸，分值到90分
-                matchSuccess.set(true);
-                if (!matchTimeout.get()) {
-                    if (null != faceExtractListener) {
-                        faceExtractListener.onFaceMatch(rectBitmap);
+            @Override
+            public void onFaceMatch(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, ImoFaceFeature[] imoFaceFeatures, float score) {
+                if (null == features) {
+                    return;
+                }
+                ImoLog.e("识别分数："+ score);
+
+                float matchScore = -1;
+                if (imoFaceFeatures != null && imoFaceFeatures.length > 0){
+                    float compare = ImoFaceExtractor.compare(imoFaceFeatures[0].getFeatures(), features);
+                    ImoLog.e("与本地特征值对比分数："+ compare);
+                    matchScore = Math.max(matchScore, compare);
+                }
+                if (matchScore >= 0.9f) {//匹配到人脸，并且对比分值到90分
+                    matchSuccess.set(true);
+                    if (!matchTimeout.get()) {
+                        if (null != faceExtractListener) {
+                            faceExtractListener.onFaceMatch(IMoRecognitionManager.getInstance().bytes2bitmap(data, width, height, format, orientation, flip));
+                        }
                     }
                 }
             }
