@@ -95,11 +95,13 @@ public class StaticOpenApi {
             if (SharedPreferencesUtils.contains(id)) {
                 String localFeature = (String) SharedPreferencesUtils.get(id, "");
                 String[] split = localFeature.split(",");
-                float[] res = new float[split.length];
-                for (int i = 0; i < split.length; i++) {
-                    res[i] = Float.parseFloat(split[i]);
+                if (split != null && split.length > 0){
+                    float[] res = new float[split.length];
+                    for (int i = 0; i < split.length; i++) {
+                        res[i] = Float.parseFloat(split[i]);
+                    }
+                    return res;
                 }
-                return res;
             }
         } catch (Exception e) {
         }

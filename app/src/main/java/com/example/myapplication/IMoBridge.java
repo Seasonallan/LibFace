@@ -5,28 +5,30 @@ import android.app.Application;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
+
 import com.library.aimo.EasyLibUtils;
 import com.library.aimo.api.IMoRecognitionManager;
 import com.library.aimo.api.IMoSDKManager;
 import com.library.aimo.api.StaticOpenApi;
 import com.library.aimo.config.SettingConfig;
+import com.library.aimo.util.ImoLog;
+import com.library.aimo.video.record.VideoBuilder;
 
 import java.lang.reflect.Method;
 
 /**
  * 连接imo module的桥梁
- * 可由此卸载imo
+ * <p>
+ * 可由此卸载imo， 不使用人脸识别的时候，直接注释对imo的调用， 把上方的注释代码解开即可
  */
 public class IMoBridge {
-//
+
 //    public static boolean existLocalFace(String id) {
 //        return true;
 //    }
 //
 //    public static void init(Context context, String key, IImoInitListener iImoInitListener) {
-//    }
-//
-//    public static void initFaceRecognitionManager(Runnable runnable) {
+//        iImoInitListener.onSuccess();
 //    }
 //
 //    public static int findMatchResults(float[] feature, Bitmap bitmap) {
@@ -41,10 +43,27 @@ public class IMoBridge {
 //        return new RectF();
 //    }
 //
+//    public static void initEasyLibUtils(Application application) {
+//    }
+//
+//    public static void saveLocalFace(String uid, float[] features) {
+//
+//    }
+//
+//    public static void buildVideo(RecognizePanel recognizePanel, IImoVideoBuildListener listener) {
+//
+//    }
+//
 //    public static abstract class RecognizePanel {
-//        public View parentView;
+//
+//        Activity activity;
 //
 //        public RecognizePanel(Activity context) {
+//            this.activity = context;
+//        }
+//
+//        protected int getCoverColor() {
+//            return 0xffffffff;
 //        }
 //
 //        protected abstract boolean isFaceRecognized();
@@ -53,25 +72,35 @@ public class IMoBridge {
 //
 //        protected abstract void onFaceRecorded(String id, Bitmap bitmap);
 //
-//        protected abstract void onFaceRecognized(Bitmap bitmap, String token);
+//        protected abstract void onFaceRecognized(float score, Bitmap bitmap, String token);
 //
 //        protected abstract void showRecognitionTimeoutDialog();
 //
 //        protected void retry() {
 //        }
+//
 //        public void startRandomAction(boolean recheck) {
 //
 //        }
+//
 //        public File getCacheDir() {
 //            return null;
 //        }
+//
 //        protected abstract void onFaceRectStatus(boolean isRight);
+//
 //        protected abstract void onFaceNotRecognized();
+//
 //        protected abstract void onActionChanged(int currentAction, int nextAction);
+//
 //        public int getTime() {
 //            return 10;
 //        }
-//        public void onCreate() {
+//
+//        public View onCreate() {
+//            TextView textView = new TextView(activity);
+//            textView.setText("已经隔离IMO");
+//            return textView;
 //        }
 //
 //        public void onResume() {
@@ -82,8 +111,13 @@ public class IMoBridge {
 //
 //        public void onDestroy() {
 //        }
+//
+//        public void startFaceCheck() {
+//        }
+//
+//        public void disableClip() {
+//        }
 //    }
-
 
 
     /**
@@ -95,6 +129,13 @@ public class IMoBridge {
         void onFail(int code);
     }
 
+    /**
+     * 生成视频回调
+     */
+    public interface IImoVideoBuildListener {
+        void onSuccess(String path);
+    }
+
 
     public static abstract class RecognizePanel extends com.library.aimo.RecognizePanel {
         public RecognizePanel(Activity context) {
@@ -102,6 +143,14 @@ public class IMoBridge {
         }
     }
 
+    /**
+     * 初始化EasyLib上下文
+     *
+     * @param application
+     */
+    public static void initEasyLibUtils(Application application) {
+        EasyLibUtils.init(application);
+    }
 
     /**
      * 本地是否有存储头像
@@ -113,6 +162,15 @@ public class IMoBridge {
         return StaticOpenApi.existLocalFace(id);
     }
 
+    /**
+     * 保存人脸特征到本地
+     *
+     * @param uid
+     * @param features
+     */
+    public static void saveLocalFace(String uid, float[] features) {
+        StaticOpenApi.saveLocalFace(uid, features);
+    }
 
     /**
      * 获取cpu类型
@@ -137,9 +195,11 @@ public class IMoBridge {
      * @param context
      */
     public static void init(Application context, String key, final IImoInitListener listener) {
-        EasyLibUtils.init(context);
+        initEasyLibUtils(context);
+
         IMoSDKManager.KEY = key;
 
+        ImoLog.e("init: key=" + key);
         if (getCPUAbi().equals("x86")) {
             if (listener != null) {
                 listener.onFail(-1);
@@ -160,6 +220,23 @@ public class IMoBridge {
         });
     }
 
+    /**
+     * 生成本地视频
+     *
+     * @param recognizePanel
+     * @param listener
+     */
+    public static void buildVideo(IMoBridge.RecognizePanel recognizePanel, IImoVideoBuildListener listener) {
+        //生成视频
+        new VideoBuilder(recognizePanel.getCacheDir(), recognizePanel.getTime()) {
+            @Override
+            public void finish() {
+                super.finish();
+                listener.onSuccess(VideoBuilder.getOutputVideo().toString());
+            }
+        }.start();
+    }
+
 
     /**
      * 释放IMO资源
@@ -169,25 +246,6 @@ public class IMoBridge {
         IMoSDKManager.get().destroy();
     }
 
-    /**
-     * 初始化IMO人脸识别
-     *
-     * @param runnable
-     */
-    public static void initFaceRecognitionManager(final Runnable runnable) {
-        IMoRecognitionManager.getInstance().init(SettingConfig.getAlgorithmNumThread(), new IMoRecognitionManager.InitListener() {
-            @Override
-            public void onSucceed() {
-                runnable.run();
-            }
-
-            @Override
-            public void onError(int code, String msg) {
-                runnable.run();
-            }
-        });
-
-    }
 
     /**
      * 比较图片的人脸信息

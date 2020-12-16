@@ -26,7 +26,7 @@ import java.util.List;
 
 
 public class IMoRecognitionManager {
-    private static final String TAG = IMoRecognitionManager.class.getSimpleName();
+
     // 单例实现
     private static IMoRecognitionManager sInstance = new IMoRecognitionManager();
 
@@ -61,7 +61,7 @@ public class IMoRecognitionManager {
      * @param initListener      初始化监听器
      */
     public synchronized void init(int algrothmNumThread, InitListener initListener) {
-        ImoLog.d(TAG, "init algrothmNumThread=" + algrothmNumThread);
+        ImoLog.d("init algrothmNumThread=" + algrothmNumThread);
 
         releaseImpl();
         new Thread(new Runnable() {
@@ -125,7 +125,7 @@ public class IMoRecognitionManager {
                 }
 
                 ImoFaceDetector.setPerformanceListener((all, core, preprocess) ->
-                        ImoLog.v(TAG, "onPerformanceCallback duration all=" + all + " core=" + core + " preprocess=" + preprocess));
+                        ImoLog.v("onPerformanceCallback duration all=" + all + " core=" + core + " preprocess=" + preprocess));
             }
         }).start();
     }

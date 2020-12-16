@@ -13,9 +13,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.key.Key;
-import com.library.aimo.api.StaticOpenApi;
-import com.library.aimo.util.BitmapUtils;
-import com.library.aimo.video.record.VideoEncoder;
 
 import java.util.Arrays;
 
@@ -41,6 +38,33 @@ public class DemoFaceActionActivity extends AppCompatActivity {
     }
 
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (recognizePanel != null) {
+            recognizePanel.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (recognizePanel != null) {
+            recognizePanel.onPause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (recognizePanel != null) {
+            recognizePanel.onDestroy();
+        }
+        IMoBridge.release();
+    }
+
+
     private IMoBridge.RecognizePanel recognizePanel;
     private boolean currentStatus = true;
 
@@ -63,11 +87,10 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        verifyTvStatus.setText(R.string.face_not_rect);
+                                        verifyTvStatus.setText("请将脸移至框内");
                                     }
                                 });
                             }
-                            //ToastSimple.show(getResources().getString(R.string.face_not_rect), 1);
                         } else {
                             if (!currentStatus) {
                                 currentStatus = true;
@@ -88,8 +111,8 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    verifyTvStatus.setText(R.string.face_not_rect);
-                                    Toast.makeText(DemoFaceActionActivity.this, getResources().getString(R.string.face_not_recognized), Toast.LENGTH_SHORT).show();
+                                    verifyTvStatus.setText("请将脸移至框内");
+                                    Toast.makeText(DemoFaceActionActivity.this, "未检测到人脸", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -99,19 +122,19 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                     protected void onActionChanged(int currentAction, int nextAction) {
                         switch (nextAction) {
                             case 1:
-                                verifyTvStatus.setText(R.string.face_record_tip_head_turn_left);
+                                verifyTvStatus.setText("请向左转头");
                                 break;
                             case 2:
-                                verifyTvStatus.setText(R.string.face_record_tip_head_turn_right);
+                                verifyTvStatus.setText("请向右转头</");
                                 break;
                             case 4:
-                                verifyTvStatus.setText(R.string.face_record_tip_nod);
+                                verifyTvStatus.setText("请点一点头");
                                 break;
                             case 32:
-                                verifyTvStatus.setText(R.string.face_record_tip_mouth_open);
+                                verifyTvStatus.setText("请张一张嘴巴");
                                 break;
                             case 8:
-                                verifyTvStatus.setText(R.string.face_record_tip_blink);
+                                verifyTvStatus.setText("请眨一眨眼睛");
                                 break;
                         }
                     }
@@ -131,24 +154,22 @@ public class DemoFaceActionActivity extends AppCompatActivity {
 
                     @Override
                     protected void onFaceRecorded(String id, Bitmap bitmap) {
-                        final String cacheBitmap = BitmapUtils.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
+                        final String cacheBitmap = Bitmap2FileUtils.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
                         final float[] features = IMoBridge.getBitmapFeature(bitmap);
-                        StaticOpenApi.saveLocalFace(DemoListActivity.uid, features); //保存人脸特征值，用于人脸登录
+                        IMoBridge.saveLocalFace(DemoListActivity.uid, features); //保存人脸特征值，用于人脸登录
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                verifyTvStatus.setText(R.string.verify_checking);
+                                verifyTvStatus.setText("success");
                                 recognizePanel.onPause();
                                 progressDialog = new ProgressDialog(DemoFaceActionActivity.this);
                                 progressDialog.setTitle("tip");
                                 progressDialog.setMessage("Loading...");
                                 progressDialog.setCancelable(true);
                                 progressDialog.show();
-                                //上传图片
-                                new VideoEncoder(recognizePanel.getCacheDir(), recognizePanel.getTime()) {
+                                IMoBridge.buildVideo(recognizePanel, new IMoBridge.IImoVideoBuildListener() {
                                     @Override
-                                    public void finish() {
-                                        super.finish();
+                                    public void onSuccess(String path) {
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
@@ -158,7 +179,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                                 StringBuffer stringBuffer = new StringBuffer();
                                                 stringBuffer.append("图片地址：" + cacheBitmap);
                                                 stringBuffer.append("\n");
-                                                stringBuffer.append("视频地址：" + VideoEncoder.getOutputVideo().toString());
+                                                stringBuffer.append("视频地址：" + path);
                                                 stringBuffer.append("\n");
                                                 stringBuffer.append("视频时长：" + recognizePanel.getTime() + " 秒");
                                                 stringBuffer.append("\n");
@@ -168,7 +189,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                             }
                                         });
                                     }
-                                }.start();
+                                });
                             }
                         });
                     }
@@ -179,18 +200,17 @@ public class DemoFaceActionActivity extends AppCompatActivity {
 
                     @Override
                     protected void showRecognitionTimeoutDialog() {
-                        VideoEncoder.clearCaches(recognizePanel.getCacheDir());
                         AlertDialog alertDialog1 = new AlertDialog.Builder(DemoFaceActionActivity.this)
-                                .setTitle(R.string.verify_error_title)//标题
-                                .setMessage(R.string.verify_error_recognized_fail)//内容
+                                .setTitle("识别失败")//标题
+                                .setMessage("无法识别您的脸部或出现异常")//内容
                                 .setIcon(R.mipmap.ic_launcher)//图标
-                                .setPositiveButton(R.string.verify_retry, new DialogInterface.OnClickListener() {//添加"Yes"按钮
+                                .setPositiveButton("重新识别", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         recognizePanel.startRandomAction(false);
                                     }
                                 })
-                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {//添加取消
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         finish();
@@ -205,12 +225,11 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                 int widthHeight = (int) (240 * getResources().getDisplayMetrics().density);
                 verifyLlFace.addView(recognizePanel.onCreate(), new LinearLayout.LayoutParams(widthHeight, widthHeight));
                 recognizePanel.startRandomAction(false);
-                VideoEncoder.clearCaches(recognizePanel.getCacheDir());
             }
 
             @Override
             public void onFail(int code) {
-                Toast.makeText(DemoFaceActionActivity.this, getResources().getString(code == -1 ? R.string.aimo_not_support : R.string.face_sdk_init_fail), Toast.LENGTH_SHORT).show();
+                Toast.makeText(DemoFaceActionActivity.this, code == -1 ? "当前设备不支持人脸识别" : "人脸功能初始化失败", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });

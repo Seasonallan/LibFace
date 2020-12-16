@@ -15,6 +15,7 @@ import com.library.aimo.api.IMoRecognitionManager;
 import com.library.aimo.core.BaseCameraEngine;
 import com.library.aimo.core.CameraCallBack;
 import com.library.aimo.util.ImoLog;
+import com.library.aimo.video.record.VideoBuilder;
 import com.library.aimo.widget.CameraContainer;
 import com.library.aimo.widget.ClipRelativeLayout;
 
@@ -25,7 +26,6 @@ import java.util.Random;
 /**
  * 人脸识别，人脸动作 组件
  */
-
 public abstract class RecognizePanel {
 
     CameraContainer cameraContainer;
@@ -63,6 +63,10 @@ public abstract class RecognizePanel {
         return this;
     }
 
+    /**
+     * 构建cameraView
+     * @return
+     */
     public View onCreate() {
         View parentView = getParentView();
         cameraContainer = parentView.findViewById(R.id.surface);
@@ -95,7 +99,7 @@ public abstract class RecognizePanel {
                 }
 
             });
-            faceRecognizedDelegate.setCurrentUserId(getLocalCacheId());
+            faceRecognizedDelegate.setUniqueID(getLocalCacheId());
             faceRecognizedDelegate.setCacheDir(cacheDir);
             faceRecognizedDelegate.init();
         } else {//人脸录入
@@ -129,7 +133,10 @@ public abstract class RecognizePanel {
         return parentView;
     }
 
-
+    /**
+     * 获取文件缓存位置
+     * @return
+     */
     public File getCacheDir() {
         return cacheDir;
     }
@@ -191,13 +198,21 @@ public abstract class RecognizePanel {
 
     int[] actions;
 
+    /**
+     * 开始人脸识别
+     */
     public void startFaceCheck() {
         if (null != faceRecognizedDelegate) {
             faceRecognizedDelegate.startFaceExtract();
         }
         onResume();
+        VideoBuilder.clearCaches(getCacheDir());
     }
 
+    /**
+     * 开始两个随机动作
+     * @param recheck 重新开始
+     */
     public void startRandomAction(boolean recheck) {
         if (null != faceActionLiveDelegate) {
             actions = new int[2];
@@ -222,8 +237,13 @@ public abstract class RecognizePanel {
             }
             onActionChanged(-1, actions[0]);
         }
+        VideoBuilder.clearCaches(getCacheDir());
     }
 
+    /**
+     * 获取动作执行的耗时
+     * @return
+     */
     public int getTime() {
         if (faceActionLiveDelegate == null) {
             return 10;
@@ -231,15 +251,24 @@ public abstract class RecognizePanel {
         return faceActionLiveDelegate.getCost();
     }
 
+    /**
+     * 相机打开
+     */
     public void onResume() {
         cameraContainer.onResume();
     }
 
+
+    /**
+     * pause,相机关闭
+     */
     public void onPause() {
         cameraContainer.onPause();
     }
 
-
+    /**
+     * 资源回收
+     */
     public void onDestroy() {
         if (null != faceActionLiveDelegate) {
             faceActionLiveDelegate.onDestroy();

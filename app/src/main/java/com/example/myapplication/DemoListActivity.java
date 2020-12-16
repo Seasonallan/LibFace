@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.library.aimo.EasyLibUtils;
 
 public class DemoListActivity extends AppCompatActivity {
 
@@ -29,7 +28,7 @@ public class DemoListActivity extends AppCompatActivity {
         findViewById(R.id.list_btn_login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EasyLibUtils.init(getApplication());
+                IMoBridge.initEasyLibUtils(getApplication());
                 if (!IMoBridge.existLocalFace(uid)){
                     Toast.makeText(DemoListActivity.this, "本地没有特征值，请先进行交互式活体采样", Toast.LENGTH_SHORT).show();
                     return;

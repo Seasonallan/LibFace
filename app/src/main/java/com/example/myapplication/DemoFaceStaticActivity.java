@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.key.Key;
-import com.library.aimo.video.record.VideoEncoder;
 
 public class DemoFaceStaticActivity extends AppCompatActivity {
 
@@ -50,6 +49,36 @@ public class DemoFaceStaticActivity extends AppCompatActivity {
         bindImoView();
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (recognizePanel != null) {
+            recognizePanel.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (recognizePanel != null) {
+            recognizePanel.onPause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (timer != null) {
+            timer.cancel();
+        }
+        if (recognizePanel != null) {
+            recognizePanel.onDestroy();
+        }
+        IMoBridge.release();
+    }
+
+
     private IMoBridge.RecognizePanel recognizePanel;
     private boolean currentStatus = true;
 
@@ -75,8 +104,8 @@ public class DemoFaceStaticActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    verifyTvStatus.setText(R.string.face_not_rect);
-                                    Toast.makeText(DemoFaceStaticActivity.this, getResources().getString(R.string.face_not_recognized), Toast.LENGTH_SHORT).show();
+                                    verifyTvStatus.setText("请将脸移至框内");
+                                    Toast.makeText(DemoFaceStaticActivity.this, "未检测到人脸", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -93,7 +122,7 @@ public class DemoFaceStaticActivity extends AppCompatActivity {
 
                     @Override
                     protected String getLocalCacheId() {
-                        return null;
+                        return null;//notice：这里必须为null
                     }
 
 
@@ -134,18 +163,17 @@ public class DemoFaceStaticActivity extends AppCompatActivity {
                     @Override
                     protected void showRecognitionTimeoutDialog() {
                         if (imageView3.getDrawable() == null) {
-                            VideoEncoder.clearCaches(recognizePanel.getCacheDir());
                             AlertDialog alertDialog1 = new AlertDialog.Builder(DemoFaceStaticActivity.this)
-                                    .setTitle(R.string.verify_error_title)//标题
-                                    .setMessage(R.string.verify_error_recognized_fail)//内容
+                                    .setTitle("识别失败")//标题
+                                    .setMessage("无法识别您的脸部或出现异常")//内容
                                     .setIcon(R.mipmap.ic_launcher)//图标
-                                    .setPositiveButton(R.string.verify_retry, new DialogInterface.OnClickListener() {//添加"Yes"按钮
+                                    .setPositiveButton("重新识别", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             start();
                                         }
                                     })
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {//添加取消
+                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {//添加取消
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             finish();
@@ -161,12 +189,11 @@ public class DemoFaceStaticActivity extends AppCompatActivity {
                 verifyLlFace.addView(recognizePanel.onCreate(), 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 recognizePanel.disableClip();
                 recognizePanel.onResume();
-                VideoEncoder.clearCaches(recognizePanel.getCacheDir());
             }
 
             @Override
             public void onFail(int code) {
-                Toast.makeText(DemoFaceStaticActivity.this, getResources().getString(code == -1 ? R.string.aimo_not_support : R.string.face_sdk_init_fail), Toast.LENGTH_SHORT).show();
+                Toast.makeText(DemoFaceStaticActivity.this, code == -1 ? "当前设备不支持人脸识别" : "人脸功能初始化失败", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });

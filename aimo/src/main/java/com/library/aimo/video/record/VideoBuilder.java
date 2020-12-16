@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * 图片合成视频
  */
-public class VideoEncoder extends Thread {
+public class VideoBuilder extends Thread {
 
     private final int mFrameRate;
     private final File out;
@@ -78,7 +78,7 @@ public class VideoEncoder extends Thread {
         // return new File(Environment.getExternalStorageDirectory(), "auf/video_encoded.mp4");
     }
 
-    public VideoEncoder(File file, int time) {
+    public VideoBuilder(File file, int time) {
         this.cacheDirs = file;
         File[] files = file.listFiles();
         files = sort(files);
