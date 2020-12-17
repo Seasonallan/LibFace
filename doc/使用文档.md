@@ -26,11 +26,23 @@ implementation 'com.github.Seasonallan:LibFace:2.0'
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.INTERNET" />
 # 第五步
-使用IMoBridge调用IMO库API
+使用IMoBridge调用IMO库API （见demo）
 示例1 交互式活体检测：
  demo中的DemoFaceActionActivity
 示例2 人脸登录：
  demo中的DemoFaceLoginActivity
 示例3 静态活体检测：
  demo中的DemoFaceStaticActivity
+ 
+# 注意事项
+1、使用的时候要注意包名和key需要匹配
+2、使用demo时，gradle版本不一致方案：
+中断更新gradle
+修改根目录下的build.gradle中的classpath "com.android.tools.build:gradle:4.0.1" 为你的版本
+修改根目录下的gradle/wrapper/gradle-wrapper.properties中的distributionUrl为你的版本
+关闭重启项目
+3、混淆配置
+-dontwarn com.aimall.**
+-keep class com.aimall.**{*;}
+-keep class org.opencv.**{*;}
  
