@@ -180,4 +180,27 @@ public class IMoBridge {
         return StaticOpenApi.getBitmapRect(bitmap);
     }
 
+
+    /**
+     * 保存图片到缓存文件
+     */
+    public static String saveBitmapCache(File appDir, Bitmap bitmap, String name) {
+        if (bitmap == null) {
+            return null;
+        }
+        String fileName = System.currentTimeMillis() + ".jpg";
+        if (!TextUtils.isEmpty(name)) {
+            fileName = name + ".jpg";
+        }
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 25, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file.toString();
+    }
 }

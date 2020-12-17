@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+import android.text.TextUtils;
 
 
 import com.library.aimo.EasyLibUtils;
@@ -14,6 +15,8 @@ import com.library.aimo.config.SettingConfig;
 import com.library.aimo.util.ImoLog;
 import com.library.aimo.video.record.VideoBuilder;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
 /**
@@ -278,4 +281,26 @@ public class IMoBridge {
         return StaticOpenApi.getBitmapRect(bitmap);
     }
 
+    /**
+     * 保存图片到缓存文件
+     */
+    public static String saveBitmapCache(File appDir, Bitmap bitmap, String name) {
+        if (bitmap == null) {
+            return null;
+        }
+        String fileName = System.currentTimeMillis() + ".jpg";
+        if (!TextUtils.isEmpty(name)) {
+            fileName = name + ".jpg";
+        }
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 25, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file.toString();
+    }
 }

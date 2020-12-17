@@ -112,7 +112,7 @@ public class DemoFaceLoginActivity extends AppCompatActivity {
 
                     @Override
                     protected void onFaceRecognized(float score, Bitmap bitmap, String id) {
-                        final String cacheBitmap = Bitmap2FileUtils.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
+                        final String cacheBitmap = IMoBridge.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

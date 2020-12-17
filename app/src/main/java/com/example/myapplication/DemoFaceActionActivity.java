@@ -154,7 +154,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
 
                     @Override
                     protected void onFaceRecorded(String id, Bitmap bitmap) {
-                        final String cacheBitmap = Bitmap2FileUtils.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
+                        final String cacheBitmap = IMoBridge.saveBitmapCache(getApplication().getCacheDir(), bitmap, "face");
                         final float[] features = IMoBridge.getBitmapFeature(bitmap);
                         IMoBridge.saveLocalFace(DemoListActivity.uid, features); //保存人脸特征值，用于人脸登录
                         runOnUiThread(new Runnable() {
