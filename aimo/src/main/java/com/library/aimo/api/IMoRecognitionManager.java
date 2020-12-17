@@ -60,7 +60,7 @@ public class IMoRecognitionManager {
      * @param algrothmNumThread 算法线程数
      * @param initListener      初始化监听器
      */
-    public synchronized void init(int algrothmNumThread, InitListener initListener) {
+    public synchronized void init(final int algrothmNumThread, final InitListener initListener) {
         ImoLog.d("init algrothmNumThread=" + algrothmNumThread);
 
         releaseImpl();
@@ -124,8 +124,6 @@ public class IMoRecognitionManager {
                     }
                 }
 
-                ImoFaceDetector.setPerformanceListener((all, core, preprocess) ->
-                        ImoLog.v("onPerformanceCallback duration all=" + all + " core=" + core + " preprocess=" + preprocess));
             }
         }).start();
     }
@@ -197,7 +195,8 @@ public class IMoRecognitionManager {
 
 
     private boolean faceMatchedOnce = false;
-    public synchronized void execFrameBytes(byte[] data, int width, int height, ImoImageFormat format, ImoImageOrientation orientation, boolean flip, int cameraRotate, boolean checkScore) {
+    public synchronized void execFrameBytes(final byte[] data,final  int width,final  int height,final  ImoImageFormat format,
+                                            final ImoImageOrientation orientation,final  boolean flip,final  int cameraRotate,final  boolean checkScore) {
         // 如果有人脸并且当前没有在做异步特帧提取时
         if (!isAsyncExtracting) {
             isAsyncExtracting = true;

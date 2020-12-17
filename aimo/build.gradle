@@ -8,11 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
-
-        ndk {
-            abiFilters  "x86",'armeabi-v7a','armeabi'
-        }
+        versionName "1.0" 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -30,16 +26,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
-    }
 
-    repositories {
-        flatDir {
-            dirs projectDir.getPath() +  "/libs"
-        }
-    }
 
     lintOptions {
         abortOnError false
@@ -53,12 +40,12 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation(name: 'core-release', ext: 'aar')
-    implementation(name: 'libFaceLiveness-release', ext: 'aar')
-    implementation(name: 'libFaceDetector-release', ext: 'aar')
-    implementation(name: 'libFaceActionDetector-release', ext: 'aar')
-    implementation(name: 'libFaceExtractorV3_1-release', ext: 'aar')
-    implementation(name: 'libFaceTrackerDetector-release', ext: 'aar')
+    compile files('libs/core_release.jar')
+    compile files('libs/face_detector.jar')
+    compile files('libs/face_extractor.jar')
+    compile files('libs/face_liveness.jar')
+    compile files('libs/face_tracker.jar')
+    compile files('libs/face_action.jar')
 
 
 }

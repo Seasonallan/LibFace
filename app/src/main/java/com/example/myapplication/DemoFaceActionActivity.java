@@ -125,7 +125,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                 verifyTvStatus.setText("请向左转头");
                                 break;
                             case 2:
-                                verifyTvStatus.setText("请向右转头</");
+                                verifyTvStatus.setText("请向右转头");
                                 break;
                             case 4:
                                 verifyTvStatus.setText("请点一点头");

@@ -255,8 +255,7 @@ public class FastPermissions {
 
         private void showDialogTips(String permission, DialogInterface.OnClickListener onDenied) {
             AlertDialog alertDialog = new AlertDialog.Builder(activity).setTitle("权限被禁用").setMessage(
-                    String.format("您拒绝了相关权限，无法正常使用本功能。\n请前往 设置->应用管理->%s->权限管理中启用权限",
-                            activity.getString(R.string.app_name)
+                    String.format("您拒绝了相关权限，无法正常使用本功能。\n请前往 设置->应用管理->权限管理中启用权限"
                     )).setCancelable(false).
                     setNegativeButton("返回", onDenied).
                     setPositiveButton("去设置", new DialogInterface.OnClickListener() {
