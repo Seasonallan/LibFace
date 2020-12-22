@@ -1,12 +1,15 @@
 package com.example.myapplication;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.library.aimo.core.FastPermissions;
 
 
 public class DemoListActivity extends AppCompatActivity {
@@ -42,6 +45,8 @@ public class DemoListActivity extends AppCompatActivity {
                 startActivity(new Intent(DemoListActivity.this, DemoFaceStaticActivity.class));
             }
         });
+
+        new FastPermissions(this).need(Manifest.permission.READ_PHONE_STATE).request(10086);
     }
 
 

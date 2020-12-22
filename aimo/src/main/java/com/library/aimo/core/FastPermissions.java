@@ -87,6 +87,10 @@ public class FastPermissions {
         }
     }
 
+    public static boolean isGranted(Context context, String permission){
+        return PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, permission);
+    }
+
     /**
      * 快捷的进行权限申请，通过添加一个临时的Fragment来进行生命周期管理，因此
      * 一个Activity请只初始化一个FastPermissions实例
@@ -144,7 +148,7 @@ public class FastPermissions {
         return new RequestPermissionsResult(activity, permissions, permissionFragment);
     }
 
-    static class RequestPermissionsResult implements Callback {
+    public static class RequestPermissionsResult implements Callback {
         private Activity activity;
         private String[] permissions;
         private PermissionFragment permissionFragment;
