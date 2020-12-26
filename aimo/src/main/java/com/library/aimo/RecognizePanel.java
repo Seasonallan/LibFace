@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.aimall.sdk.faceactiondetector.bean.FaceActionType;
 import com.library.aimo.config.SettingConfig;
@@ -20,6 +21,9 @@ import com.library.aimo.widget.CameraContainer;
 import com.library.aimo.widget.ClipRelativeLayout;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 
@@ -30,6 +34,7 @@ public abstract class RecognizePanel {
 
     CameraContainer cameraContainer;
     ClipRelativeLayout clipCoverView;
+    TextView actionView;
 
     private Activity context;
 
@@ -65,10 +70,12 @@ public abstract class RecognizePanel {
 
     /**
      * 构建cameraView
+     *
      * @return
      */
     public View onCreate() {
         View parentView = getParentView();
+        actionView = parentView.findViewById(R.id.tv_action);
         cameraContainer = parentView.findViewById(R.id.surface);
         clipCoverView = parentView.findViewById(R.id.rl_layout_clip);
         clipCoverView.setBackgroundColor(getCoverColor());
@@ -80,6 +87,7 @@ public abstract class RecognizePanel {
         if (!cacheDir.isDirectory()) {
             cacheDir.mkdirs();
         }
+        actionView.setVisibility(View.GONE);
         if (isFaceRecognized()) {//人脸识别
             faceRecognizedDelegate = new FaceRecognizedDelegate(new FaceRecognizedDelegate.FaceExtractListener() {
                 @Override
@@ -108,7 +116,8 @@ public abstract class RecognizePanel {
                 @Override
                 public void onActionRight(int currentAction, int nextAction) {
                     faceActionLiveDelegate.nextAction();
-                    onActionChanged(currentAction, actions[nextAction]);
+                    clipCoverView.setProgress(nextAction * 100 / actions.length, true);
+                    actionChange(currentAction, actions[nextAction]);
                 }
 
                 @Override
@@ -124,6 +133,7 @@ public abstract class RecognizePanel {
                 @Override
                 public void onActionLiveMatch(Bitmap bitmap) {
                     clipCoverView.showSuccess();
+                    clipCoverView.setProgress(100, true);
                     onFaceRecorded(getLocalCacheId(), bitmap);
                 }
             });
@@ -135,6 +145,7 @@ public abstract class RecognizePanel {
 
     /**
      * 获取文件缓存位置
+     *
      * @return
      */
     public File getCacheDir() {
@@ -211,6 +222,7 @@ public abstract class RecognizePanel {
 
     /**
      * 开始两个随机动作
+     *
      * @param recheck 重新开始
      */
     public void startRandomAction(boolean recheck) {
@@ -235,13 +247,82 @@ public abstract class RecognizePanel {
                 faceActionLiveDelegate.setAction(actions);
                 onResume();
             }
-            onActionChanged(-1, actions[0]);
+            actionChange(-1, actions[0]);
         }
         VideoBuilder.clearCaches(getCacheDir());
     }
 
     /**
+     * 录入人脸
+     *
+     * @param random 打乱顺序
+     */
+    public void startRecordByAction(boolean random) {
+        actionView.setVisibility(View.VISIBLE);
+        clipCoverView.setModeProgress();
+        clipCoverView.setProgress(0, true);
+        if (null != faceActionLiveDelegate) {
+            List<Integer> actionArrays = new ArrayList<>();
+            actionArrays.add(FaceActionType.FaceActionTypeHeadTurnLeft);
+            actionArrays.add(FaceActionType.FaceActionTypeHeadTurnRight);
+            actionArrays.add(FaceActionType.FaceActionTypeNod);
+            actionArrays.add(FaceActionType.FaceActionTypeMouthOpen);
+            if (random) {
+                Collections.shuffle(actionArrays);
+            }
+            actions = new int[actionArrays.size()];
+            for (int i = 0; i < actionArrays.size(); i++) {
+                actions[i] = actionArrays.get(i);
+            }
+
+            faceActionLiveDelegate.setAction(actions);
+
+            onResume();
+            actionChange(-1, actions[0]);
+        }
+        VideoBuilder.clearCaches(getCacheDir());
+    }
+
+    /**
+     * 动作正确
+     *
+     * @param currentAction
+     * @param nextAction
+     */
+    protected void actionChange(int currentAction, int nextAction){
+        switch (nextAction) {
+            case 1:
+                actionView.setText(actionDescriptions[0]);
+                break;
+            case 2:
+                actionView.setText(actionDescriptions[1]);
+                break;
+            case 4:
+                actionView.setText(actionDescriptions[2]);
+                break;
+            case 8:
+                actionView.setText(actionDescriptions[3]);
+                break;
+            case 32:
+                actionView.setText(actionDescriptions[4]);
+                break;
+        }
+        onActionChanged(currentAction, nextAction);
+    }
+
+    String[] actionDescriptions = {"向左转头", "向右转头", "上下点头", "眨眨眼", "张张嘴"};
+
+    /**
+     * 顺序需要严格按照{"向左转头", "向右转头", "上下点头", "眨眨眼", "张张嘴", };来执行
+     * @param strings
+     */
+    public void setActionDescriptions(String... strings){
+        actionDescriptions = strings;
+    }
+
+    /**
      * 获取动作执行的耗时
+     *
      * @return
      */
     public int getTime() {

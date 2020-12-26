@@ -12,6 +12,18 @@
         app:openBackCamera="false"
         app:scaleType="centerCrop" />
 
+    <TextView
+        android:id="@+id/tv_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#88000000"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="10dp"
+        android:text="张嘴"
+        android:textColor="@android:color/white"
+        android:textSize="16dp" />
+
 
     <com.library.aimo.widget.ClipRelativeLayout
         android:id="@+id/rl_layout_clip"
@@ -23,8 +35,7 @@
             android:id="@+id/face_view_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/icon_progress" />
+            android:layout_centerHorizontal="true" />
 
 
     </com.library.aimo.widget.ClipRelativeLayout>

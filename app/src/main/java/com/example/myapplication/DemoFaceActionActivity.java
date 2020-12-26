@@ -97,7 +97,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        recognizePanel.startRandomAction(true);
+                                      //  recognizePanel.startRecordByAction(true);
                                     }
                                 });
                             }
@@ -111,7 +111,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    verifyTvStatus.setText("请将脸移至框内");
+                                    //verifyTvStatus.setText("请将脸移至框内");
                                     Toast.makeText(DemoFaceActionActivity.this, "未检测到人脸", Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -130,11 +130,11 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                             case 4:
                                 verifyTvStatus.setText("请点一点头");
                                 break;
-                            case 32:
-                                verifyTvStatus.setText("请张一张嘴巴");
-                                break;
                             case 8:
                                 verifyTvStatus.setText("请眨一眨眼睛");
+                                break;
+                            case 32:
+                                verifyTvStatus.setText("请张一张嘴巴");
                                 break;
                         }
                     }
@@ -207,7 +207,7 @@ public class DemoFaceActionActivity extends AppCompatActivity {
                                 .setPositiveButton("重新识别", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        recognizePanel.startRandomAction(false);
+                                        recognizePanel.startRecordByAction(true);
                                     }
                                 })
                                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -224,7 +224,8 @@ public class DemoFaceActionActivity extends AppCompatActivity {
 
                 int widthHeight = (int) (240 * getResources().getDisplayMetrics().density);
                 verifyLlFace.addView(recognizePanel.onCreate(), new LinearLayout.LayoutParams(widthHeight, widthHeight));
-                recognizePanel.startRandomAction(false);
+                recognizePanel.setActionDescriptions("<--", "-->", "|", "@", "=");
+                recognizePanel.startRecordByAction(false);
             }
 
             @Override
