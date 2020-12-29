@@ -30,4 +30,24 @@
         android:gravity="center_horizontal"
         android:padding="16dp"
         android:text="静态识别" />
+
+    <Button
+        android:id="@+id/list_btn_ocr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:padding="16dp"
+        android:text="拍照识别" />
+
+    <ImageView
+        android:id="@+id/result"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerInside" />
+
+    <ImageView
+        android:id="@+id/resultHead"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerInside" />
 </LinearLayout>

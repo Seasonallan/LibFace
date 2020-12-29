@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:src="@android:color/black">
+
+    <LinearLayout
+        android:id="@+id/camera_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" />
+
+
+    <RelativeLayout
+        android:id="@+id/camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@android:color/black">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/camera_bottom">
+
+            <View
+                android:id="@+id/camera_fl_cover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/circle_line_white6"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/camera_tips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:paddingBottom="0dp"
+                android:rotation="90"
+                android:text="请将证件放入框内，并对其四周边框"
+                android:textColor="@android:color/white"
+                android:textSize="15sp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/camera_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:padding="26dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/camera_iv_take_picture"
+                    android:layout_width="68dp"
+                    android:layout_height="68dp"
+                    android:layout_gravity="center"
+                    android:src="@mipmap/icon_camera_take" />
+
+                <ImageView
+                    android:id="@+id/camera_iv_back"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="right|center_vertical"
+                    android:layout_marginRight="18dp"
+                    android:src="@mipmap/icon_camera_back" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/camera_iv_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/camera_rl_result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <com.library.aimo.widget.RotateTextView
+            android:id="@+id/camera_iv_use"
+            android:layout_width="36dp"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="46dp"
+            android:layout_marginBottom="28dp"
+            android:background="@drawable/btn_circle_blue"
+            android:gravity="center"
+            android:text="使用"
+            android:textColor="@color/tv_select_white"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/camera_iv_retake"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="46dp"
+            android:src="@mipmap/icon_camera_retake" />
+
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.PermissionGroupInfo;
-import android.content.pm.PermissionInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -19,8 +17,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.library.aimo.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,5 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.library.aimo">
 
-    /
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application>
+
+        <activity
+            android:name=".SimpleCameraActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+
+    </application>
 </manifest>
