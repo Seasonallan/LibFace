@@ -237,7 +237,7 @@ public class SimpleCameraActivity extends AppCompatActivity {
         cameraRlResult.setVisibility(View.GONE);
 
         camera_tips.setText(topDesc);
-        ((TextView)findViewById(R.id.camera_iv_use)).setText(buttonDesc);
+        ((TextView) findViewById(R.id.camera_iv_use)).setText(buttonDesc);
 
         camera_tips.post(new Runnable() {
             @Override
@@ -279,7 +279,7 @@ public class SimpleCameraActivity extends AppCompatActivity {
 
                     if (size != null) {
                         if (size.height * 1.0f / size.width > width * 1.0f / height) {//以高为基准
-                            percent = size.height * 1.0f / height;
+                            percent = height * 1.0f / size.height;
                         } else {
                             percent = width * 1.0f / size.height;
                         }
@@ -289,6 +289,11 @@ public class SimpleCameraActivity extends AppCompatActivity {
                     int top = (int) (-params.leftMargin + rectMargin / percent);
                     int width = (int) (camera_fl_cover.getHeight() / percent);
                     int height = (int) (camera_fl_cover.getWidth() / percent);
+                    left = Math.max(0, left);
+                    top = Math.max(0, top);
+                    width = Math.min(result.getWidth() - left, width);
+                    height = Math.min(result.getHeight() - top, height);
+
 
                     final Bitmap clipBitmap = Bitmap.createBitmap(result, left, top, width, height);
                     filePath = saveBitmapCache(getCacheDir(), clipBitmap, null);
@@ -360,7 +365,7 @@ public class SimpleCameraActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (autoRecognize){
+        if (autoRecognize) {
             IMoSDKManager.get().destroy();
             IMoRecognitionManager.getInstance().release();
         }
