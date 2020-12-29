@@ -343,10 +343,13 @@ public class SimpleCameraActivity extends AppCompatActivity {
                                 }
                             }
                         });
+                    }else{
+                        setResult();
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    setResult();
                 }
             }
         });
