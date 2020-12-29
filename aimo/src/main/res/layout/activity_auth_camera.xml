@@ -26,7 +26,7 @@
                 android:id="@+id/camera_fl_cover"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/circle_line_white6"
+                android:background="@drawable/circle_camera_white6"
                 android:orientation="vertical" />
 
             <TextView
@@ -93,10 +93,10 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="46dp"
             android:layout_marginBottom="28dp"
-            android:background="@drawable/btn_circle_blue"
+            android:background="@drawable/btn_camera_blue"
             android:gravity="center"
             android:text="使用"
-            android:textColor="@color/tv_select_white"
+            android:textColor="@color/tv_camera_white"
             android:textSize="16sp" />
 
         <ImageView
