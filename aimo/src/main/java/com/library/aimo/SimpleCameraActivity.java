@@ -279,14 +279,14 @@ public class SimpleCameraActivity extends AppCompatActivity {
 
                     if (size != null) {
                         if (size.height * 1.0f / size.width > width * 1.0f / height) {//以高为基准
-                            percent = height * 1.0f / size.height;
+                            percent = height * 1.0f / size.width;
                         } else {
                             percent = width * 1.0f / size.height;
                         }
                     }
 
                     int left = (int) ((-params.topMargin + rectMargin + getStatusBarHeight(SimpleCameraActivity.this)) / percent);
-                    int top = (int) (-params.leftMargin + rectMargin / percent);
+                    int top = (int) ((-params.leftMargin + rectMargin) / percent);
                     int width = (int) (camera_fl_cover.getHeight() / percent);
                     int height = (int) (camera_fl_cover.getWidth() / percent);
                     left = Math.max(0, left);
