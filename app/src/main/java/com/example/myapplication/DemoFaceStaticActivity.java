@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.baidu.idl.face.example.R;
 import com.key.Key;
 
 public class DemoFaceStaticActivity extends AppCompatActivity {

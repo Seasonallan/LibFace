@@ -1,3 +1,4 @@
 include ':aimo'
 include ':app'
 rootProject.name = "My Application"
+include ':baidu'

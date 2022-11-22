@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myapplication">
+    package="com.baidu.idl.face.example">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".DemoListActivity"
+            android:name="com.example.myapplication.DemoListActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,13 +25,13 @@
 
 
         <activity
-            android:name=".DemoFaceActionActivity"
+            android:name="com.example.myapplication.DemoFaceActionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".DemoFaceLoginActivity"
+            android:name="com.example.myapplication.DemoFaceLoginActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".DemoFaceStaticActivity"
+            android:name="com.example.myapplication.DemoFaceStaticActivity"
             android:screenOrientation="portrait" />
     </application>
 

@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Checkout_at_2022_11_22_15_16_[Default_Changelist]" date="1669101390566" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_2022_11_22_15_16_[Default_Changelist]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 2022/11/22 15:16 [Default Changelist]" />
+  <binary>
+    <option name="BEFORE_PATH" value=".gradle/6.1.1/fileHashes/fileHashes.lock" />
+    <option name="AFTER_PATH" value=".gradle/6.1.1/fileHashes/fileHashes.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_2022_11_22_15_16_[Default_Changelist]/fileHashes.lock" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value=".gradle/checksums/checksums.lock" />
+    <option name="AFTER_PATH" value=".gradle/checksums/checksums.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_2022_11_22_15_16_[Default_Changelist]/checksums.lock" />
+  </binary>
+</changelist>

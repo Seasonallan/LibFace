@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.baidu.idl.face.example.R;
 import com.key.Key;
 import com.library.aimo.SimpleCameraActivity;
 import com.library.aimo.api.IMoSDKManager;

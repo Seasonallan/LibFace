@@ -5,22 +5,54 @@ android {
     buildToolsVersion "30.0.1"
 
     defaultConfig {
-        applicationId "com.huke.socialcontact"
+        applicationId "com.example.test"
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
 
-        ndk {
-            abiFilters "x86", 'armeabi-v7a', 'armeabi'
-        }
+//        ndk {
+//            abiFilters "x86", 'armeabi-v7a', 'armeabi'
+//        }
 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
 
+    signingConfigs {
+        release {
+            //.jks文件最好放在项目app目录下
+            storeFile file("../huke.jks")
+            keyAlias 'huke'
+            keyPassword 'huke2019'
+            storePassword 'huke2019'
+        }
+        debug {
+            //.jks文件最好放在项目app目录下
+            storeFile file("../huke.jks")
+            keyAlias 'huke'
+            keyPassword 'huke2019'
+            storePassword 'huke2019'
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            debuggable true
+            jniDebuggable true
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable false
+            jniDebuggable false
+        }
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -44,6 +76,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    implementation(name: 'faceplatform-release-4.1.5', ext: 'aar')
     //aimo人脸识别库
     api project(path: ':aimo')
 }
